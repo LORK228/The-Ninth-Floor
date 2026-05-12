@@ -1,35 +1,29 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class SimpleDoor : MonoBehaviour, IInteractable
+public class AlarmClock : MonoBehaviour, IInteractable
 {
-    [Header("Настройки двери")]
-    [SerializeField] private string openPrompt = "Открыть";
-    [SerializeField] private string closePrompt = "Закрыть";
-    
-    [Tooltip("Угол, на который открывается дверь (относительно начального).")]
-    [SerializeField] private float openAngle = -90f; 
-    
-    [Tooltip("Ось вращения (X, Y или Z).")]
-    [SerializeField] private Vector3 rotationAxis = Vector3.up;
-    
-    [SerializeField] private float rotationSpeed = 5f;
+    [Header("Настройки")]
+    [SerializeField] private string prompt = "Выключить будильник";
+    [SerializeField] private int taskIndexRequired = 0; // Индекс задания (0 = Выключить будильник)
 
-    [Header("Визуализация")]
+    [Header("Визуализация/Аудио")]
+    [Tooltip("Рендереры для подсветки. Если пусто, скрипт найдет их сам.")]
     [SerializeField] private Renderer[] meshRenderers;
     [SerializeField] private Color highlightColor = new Color(0.8f, 0.8f, 0.5f, 1f);
+    [SerializeField] private AudioSource audioSource;
     
     private Color[][] originalColors;
-    private bool isOpen = false;
-    private bool isAnimating = false;
+    private bool isTurnedOff = false;
 
-    private Quaternion closedRotation;
-    private Quaternion openRotation;
-
-    public string InteractionPrompt => isOpen ? closePrompt : openPrompt;
+    public string InteractionPrompt => isTurnedOff ? "" : prompt;
 
     private void Awake()
     {
+        if (audioSource == null)
+        {
+            audioSource = GetComponent<AudioSource>();
+        }
+
         if (meshRenderers == null || meshRenderers.Length == 0)
         {
             meshRenderers = GetComponentsInChildren<Renderer>();
@@ -54,38 +48,52 @@ public class SimpleDoor : MonoBehaviour, IInteractable
                 }
             }
         }
+    }
 
-        closedRotation = transform.localRotation;
-        openRotation = closedRotation * Quaternion.AngleAxis(openAngle, rotationAxis.normalized);
+    private void Start()
+    {
+        // Если это самое первое задание, будильник должен звенеть сразу
+        if (TaskManager.Instance != null && TaskManager.Instance.GetCurrentTaskIndex() == taskIndexRequired)
+        {
+            if (audioSource != null && !audioSource.isPlaying)
+                audioSource.Play();
+        }
     }
 
     public bool Interact(GameObject interactor)
     {
-        if (isAnimating) return false;
+        if (isTurnedOff) return false;
 
-        isOpen = !isOpen;
-        StartCoroutine(AnimateDoor(isOpen ? openRotation : closedRotation));
+        if (TaskManager.Instance != null && TaskManager.Instance.GetCurrentTaskIndex() == taskIndexRequired)
+        {
+            TurnOff();
+            return true;
+        }
         
-        return true; 
+        return false;
     }
 
-    private IEnumerator AnimateDoor(Quaternion targetRotation)
+    private void TurnOff()
     {
-        isAnimating = true;
+        isTurnedOff = true;
+        OnHoverExit();
 
-        while (Quaternion.Angle(transform.localRotation, targetRotation) > 0.1f)
+        if (audioSource != null)
         {
-            transform.localRotation = Quaternion.Slerp(transform.localRotation, targetRotation, Time.deltaTime * rotationSpeed);
-            yield return null;
+            audioSource.Stop();
         }
 
-        transform.localRotation = targetRotation; 
-        isAnimating = false;
+        if (TaskManager.Instance != null)
+        {
+            TaskManager.Instance.CompleteCurrentTask();
+        }
+        
+        Debug.Log("Будильник выключен!");
     }
 
     public void OnHoverEnter()
     {
-        if (meshRenderers == null) return;
+        if (isTurnedOff || meshRenderers == null) return;
         
         for (int i = 0; i < meshRenderers.Length; i++)
         {

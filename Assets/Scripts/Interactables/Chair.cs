@@ -4,23 +4,20 @@ public class Chair : MonoBehaviour, IInteractable
 {
     [Header("Настройки кресла")]
     [SerializeField] private string prompt = "Сесть";
-    [Tooltip("Точка, куда перемещается игрок при посадке (создайте пустой объект на сидушке кресла и закиньте сюда)")]
     [SerializeField] private Transform sitPoint; 
     [SerializeField] private KeyCode standUpKey = KeyCode.Space;
     
     [Header("Визуализация")]
-    [Tooltip("Рендереры для подсветки. Если пусто, скрипт найдет их сам.")]
     [SerializeField] private Renderer[] meshRenderers;
     [SerializeField] private Color highlightColor = new Color(0.8f, 0.8f, 0.5f, 1f);
     
-    private Color[] originalColors;
+    private Color[][] originalColors;
     private bool isOccupied = false;
     private GameObject currentPlayerObj;
     private FirstPersonController fpc;
     
     private Vector3 standPosition;
     
-    // Сохраняем исходные настройки контроллера
     private bool wasPlayerCanMove;
     private bool wasEnableJump;
     private bool wasEnableCrouch;
@@ -37,12 +34,20 @@ public class Chair : MonoBehaviour, IInteractable
 
         if (meshRenderers != null && meshRenderers.Length > 0)
         {
-            originalColors = new Color[meshRenderers.Length];
+            originalColors = new Color[meshRenderers.Length][];
             for (int i = 0; i < meshRenderers.Length; i++)
             {
-                if (meshRenderers[i].material != null)
+                if (meshRenderers[i] != null)
                 {
-                    originalColors[i] = meshRenderers[i].material.color;
+                    Material[] mats = meshRenderers[i].materials;
+                    originalColors[i] = new Color[mats.Length];
+                    for (int j = 0; j < mats.Length; j++)
+                    {
+                        if (mats[j].HasProperty("_BaseColor"))
+                            originalColors[i][j] = mats[j].GetColor("_BaseColor");
+                        else if (mats[j].HasProperty("_Color"))
+                            originalColors[i][j] = mats[j].color;
+                    }
                 }
             }
         }
@@ -72,13 +77,11 @@ public class Chair : MonoBehaviour, IInteractable
         currentPlayerObj = fpc.gameObject;
         standPosition = currentPlayerObj.transform.position;
         
-        // Запоминаем текущие настройки контроллера до посадки
         wasPlayerCanMove = fpc.playerCanMove;
         wasEnableJump = fpc.enableJump;
         wasEnableCrouch = fpc.enableCrouch;
         wasEnableHeadBob = fpc.enableHeadBob;
         
-        // Отключаем
         fpc.playerCanMove = false;
         fpc.enableJump = false;
         fpc.enableCrouch = false;
@@ -109,7 +112,6 @@ public class Chair : MonoBehaviour, IInteractable
     {
         if (fpc != null)
         {
-            // Возвращаем настройки в то состояние, в котором они были ДО посадки
             fpc.playerCanMove = wasPlayerCanMove;
             fpc.enableJump = wasEnableJump;
             fpc.enableCrouch = wasEnableCrouch;
@@ -131,24 +133,43 @@ public class Chair : MonoBehaviour, IInteractable
 
     public void OnHoverEnter()
     {
-        if (isOccupied) return;
+        if (isOccupied || meshRenderers == null) return;
 
-        if (meshRenderers == null) return;
-        foreach (var rend in meshRenderers)
+        for (int i = 0; i < meshRenderers.Length; i++)
         {
-            if (rend != null && rend.material != null)
-                rend.material.color = highlightColor;
+            if (meshRenderers[i] != null)
+            {
+                Material[] mats = meshRenderers[i].materials;
+                for (int j = 0; j < mats.Length; j++)
+                {
+                    if (mats[j].HasProperty("_BaseColor"))
+                        mats[j].SetColor("_BaseColor", highlightColor);
+                    else if (mats[j].HasProperty("_Color"))
+                        mats[j].color = highlightColor;
+                }
+            }
         }
     }
 
     public void OnHoverExit()
     {
         if (meshRenderers == null || originalColors == null) return;
+        
         for (int i = 0; i < meshRenderers.Length; i++)
         {
-            if (meshRenderers[i] != null && meshRenderers[i].material != null)
+            if (meshRenderers[i] != null && originalColors[i] != null)
             {
-                meshRenderers[i].material.color = originalColors[i];
+                Material[] mats = meshRenderers[i].materials;
+                for (int j = 0; j < mats.Length; j++)
+                {
+                    if (j < originalColors[i].Length)
+                    {
+                        if (mats[j].HasProperty("_BaseColor"))
+                            mats[j].SetColor("_BaseColor", originalColors[i][j]);
+                        else if (mats[j].HasProperty("_Color"))
+                            mats[j].color = originalColors[i][j];
+                    }
+                }
             }
         }
     }

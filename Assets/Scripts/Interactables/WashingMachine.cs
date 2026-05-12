@@ -1,39 +1,28 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class SimpleDoor : MonoBehaviour, IInteractable
+public class WashingMachine : MonoBehaviour, IInteractable
 {
-    [Header("Настройки двери")]
-    [SerializeField] private string openPrompt = "Открыть";
-    [SerializeField] private string closePrompt = "Закрыть";
-    
-    [Tooltip("Угол, на который открывается дверь (относительно начального).")]
-    [SerializeField] private float openAngle = -90f; 
-    
-    [Tooltip("Ось вращения (X, Y или Z).")]
-    [SerializeField] private Vector3 rotationAxis = Vector3.up;
-    
-    [SerializeField] private float rotationSpeed = 5f;
+    [Header("Настройки")]
+    [SerializeField] private string prompt = "Достать белье";
+    [SerializeField] private int taskIndexRequired = 1; // Задание: Развесить белье
+
+    [Header("Выдаваемый предмет")]
+    [SerializeField] private string itemName = "Таз с бельем";
+    [SerializeField] private GameObject basketPrefab; // Префаб тазика, который появится в руках
 
     [Header("Визуализация")]
     [SerializeField] private Renderer[] meshRenderers;
     [SerializeField] private Color highlightColor = new Color(0.8f, 0.8f, 0.5f, 1f);
     
     private Color[][] originalColors;
-    private bool isOpen = false;
-    private bool isAnimating = false;
+    private bool isEmptied = false;
 
-    private Quaternion closedRotation;
-    private Quaternion openRotation;
-
-    public string InteractionPrompt => isOpen ? closePrompt : openPrompt;
+    public string InteractionPrompt => isEmptied ? "" : prompt;
 
     private void Awake()
     {
         if (meshRenderers == null || meshRenderers.Length == 0)
-        {
             meshRenderers = GetComponentsInChildren<Renderer>();
-        }
 
         if (meshRenderers != null && meshRenderers.Length > 0)
         {
@@ -54,38 +43,29 @@ public class SimpleDoor : MonoBehaviour, IInteractable
                 }
             }
         }
-
-        closedRotation = transform.localRotation;
-        openRotation = closedRotation * Quaternion.AngleAxis(openAngle, rotationAxis.normalized);
     }
 
     public bool Interact(GameObject interactor)
     {
-        if (isAnimating) return false;
+        if (isEmptied) return false;
 
-        isOpen = !isOpen;
-        StartCoroutine(AnimateDoor(isOpen ? openRotation : closedRotation));
-        
-        return true; 
-    }
-
-    private IEnumerator AnimateDoor(Quaternion targetRotation)
-    {
-        isAnimating = true;
-
-        while (Quaternion.Angle(transform.localRotation, targetRotation) > 0.1f)
+        if (TaskManager.Instance != null && TaskManager.Instance.GetCurrentTaskIndex() == taskIndexRequired)
         {
-            transform.localRotation = Quaternion.Slerp(transform.localRotation, targetRotation, Time.deltaTime * rotationSpeed);
-            yield return null;
+            // Выдаем предмет игроку
+            if (PlayerInventory.Instance != null)
+            {
+                PlayerInventory.Instance.GiveItem(itemName, basketPrefab);
+                isEmptied = true;
+                OnHoverExit(); // Снимаем подсветку
+                return true;
+            }
         }
-
-        transform.localRotation = targetRotation; 
-        isAnimating = false;
+        return false;
     }
 
     public void OnHoverEnter()
     {
-        if (meshRenderers == null) return;
+        if (isEmptied || meshRenderers == null) return;
         
         for (int i = 0; i < meshRenderers.Length; i++)
         {
