@@ -24,9 +24,17 @@ public class PlayerInventory : MonoBehaviour
     }
 
     /// <summary>
-    /// Выдать предмет игроку в руки
+    /// Выдать предмет игроку в руки со стандартными настройками (без смещения)
     /// </summary>
     public void GiveItem(string itemName, GameObject itemPrefab)
+    {
+        GiveItem(itemName, itemPrefab, Vector3.zero, Vector3.zero);
+    }
+
+    /// <summary>
+    /// Выдать предмет игроку в руки с кастомным смещением и поворотом
+    /// </summary>
+    public void GiveItem(string itemName, GameObject itemPrefab, Vector3 localPositionOffset, Vector3 localRotationOffset)
     {
         ClearHand();
 
@@ -34,7 +42,11 @@ public class PlayerInventory : MonoBehaviour
 
         if (itemPrefab != null && handPoint != null)
         {
-            currentItemObj = Instantiate(itemPrefab, handPoint.position, handPoint.rotation, handPoint);
+            currentItemObj = Instantiate(itemPrefab, handPoint);
+            
+            // Применяем локальное смещение и поворот относительно handPoint
+            currentItemObj.transform.localPosition = localPositionOffset;
+            currentItemObj.transform.localRotation = Quaternion.Euler(localRotationOffset);
             
             // Отключаем коллайдеры у предмета в руках, чтобы они не мешали лучу взаимодействия и физике игрока
             Collider[] colliders = currentItemObj.GetComponentsInChildren<Collider>();

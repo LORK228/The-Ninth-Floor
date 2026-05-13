@@ -10,6 +10,12 @@ public class PickupItem : BaseInteractable
     [Tooltip("Если -1, то можно взять всегда. Иначе - только на определенном этапе игры.")]
     [SerializeField] private int requiredTaskIndex = 3; 
 
+    [Header("Положение в руке")]
+    [Tooltip("Смещение объекта в руке (относительно HandPoint)")]
+    [SerializeField] private Vector3 handPositionOffset = Vector3.zero;
+    [Tooltip("Поворот объекта в руке (относительно HandPoint)")]
+    [SerializeField] private Vector3 handRotationOffset = Vector3.zero;
+
     private bool isLocked = false;
 
     public override string InteractionPrompt => isLocked ? "" : prompt;
@@ -46,7 +52,8 @@ public class PickupItem : BaseInteractable
 
         if (PlayerInventory.Instance != null)
         {
-            PlayerInventory.Instance.GiveItem(itemName, itemPrefabInHand);
+            // Передаем настройки смещения в инвентарь
+            PlayerInventory.Instance.GiveItem(itemName, itemPrefabInHand, handPositionOffset, handRotationOffset);
             Destroy(gameObject);
             return true;
         }
