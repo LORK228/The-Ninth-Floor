@@ -10,8 +10,14 @@ public class WashingMachine : BaseInteractable
     [SerializeField] private string itemName = "Таз с бельем";
     [SerializeField] private GameObject basketPrefab; 
 
+    [Header("Положение в руке")]
+    [Tooltip("Смещение объекта в руке (относительно HandPoint)")]
+    [SerializeField] private Vector3 handPositionOffset = Vector3.zero;
+    [Tooltip("Поворот объекта в руке (относительно HandPoint)")]
+    [SerializeField] private Vector3 handRotationOffset = Vector3.zero;
+
     private bool isEmptied = false;
-    private bool isLocked = true; // Заблокировано, пока не наступит нужное задание
+    private bool isLocked = true; 
 
     public override string InteractionPrompt => isEmptied || isLocked ? "" : prompt;
 
@@ -43,13 +49,10 @@ public class WashingMachine : BaseInteractable
 
         if (PlayerInventory.Instance != null)
         {
-            PlayerInventory.Instance.GiveItem(itemName, basketPrefab);
+            PlayerInventory.Instance.GiveItem(itemName, basketPrefab, handPositionOffset, handRotationOffset);
             isEmptied = true;
             isLocked = true;
             OnHoverExit(); 
-            
-            // Если нужно сразу переключить задание после взятия таза - можно раскомментировать
-            // if (TaskManager.Instance != null) TaskManager.Instance.CompleteCurrentTask();
             
             return true;
         }

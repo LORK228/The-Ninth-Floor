@@ -13,6 +13,12 @@ public class Microwave : BaseInteractable
     
     [SerializeField] private float heatTime = 10f;
     [SerializeField] private int taskIndexRequired = 3; 
+
+    [Header("Положение в руке (готовая еда)")]
+    [Tooltip("Смещение объекта в руке (относительно HandPoint)")]
+    [SerializeField] private Vector3 handPositionOffset = Vector3.zero;
+    [Tooltip("Поворот объекта в руке (относительно HandPoint)")]
+    [SerializeField] private Vector3 handRotationOffset = Vector3.zero;
     
     public enum MicrowaveState { Idle, Heating, Done, Locked }
     private MicrowaveState currentState = MicrowaveState.Locked;
@@ -84,7 +90,7 @@ public class Microwave : BaseInteractable
         {
             if (PlayerInventory.Instance != null)
             {
-                PlayerInventory.Instance.GiveItem(heatedItemName, heatedItemPrefab);
+                PlayerInventory.Instance.GiveItem(heatedItemName, heatedItemPrefab, handPositionOffset, handRotationOffset);
                 
                 if (currentFoodInside != null)
                 {
@@ -106,7 +112,6 @@ public class Microwave : BaseInteractable
         return false;
     }
 
-    // ВОТ ЭТОТ МЕТОД БЫЛ ПОТЕРЯН
     private IEnumerator HeatRoutine()
     {
         currentState = MicrowaveState.Heating;
