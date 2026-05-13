@@ -1,11 +1,11 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-public class SimpleDoor : BaseInteractable
+public class FridgeDoor : BaseInteractable
 {
     [Header("Настройки двери")]
-    [SerializeField] private string openPrompt = "Открыть";
-    [SerializeField] private string closePrompt = "Закрыть";
+    [SerializeField] private string openPrompt = "Открыть холодильник";
+    [SerializeField] private string closePrompt = "Закрыть холодильник";
     
     [SerializeField] private bool useExactAngles = true;
     [SerializeField] private Vector3 closedAngles = new Vector3(-90, 0, 0);
@@ -15,6 +15,9 @@ public class SimpleDoor : BaseInteractable
     [SerializeField] private Vector3 rotationAxis = Vector3.up;
     
     [SerializeField] private float rotationSpeed = 5f;
+
+    [Header("Еда внутри (Опционально)")]
+    [SerializeField] private GameObject foodInside;
 
     private bool isOpen = false;
     private bool isAnimating = false;
@@ -27,6 +30,11 @@ public class SimpleDoor : BaseInteractable
     protected override void Awake()
     {
         base.Awake();
+
+        if (foodInside != null)
+        {
+            foodInside.SetActive(false);
+        }
 
         if (useExactAngles)
         {
@@ -47,6 +55,11 @@ public class SimpleDoor : BaseInteractable
 
         isOpen = !isOpen;
         StartCoroutine(AnimateDoor(isOpen ? openRotation : closedRotation));
+        
+        if (foodInside != null)
+        {
+            foodInside.SetActive(isOpen);
+        }
         
         return true; 
     }

@@ -1,0 +1,94 @@
+﻿using UnityEngine;
+
+public class ClothesDryer : BaseInteractable
+{
+    [Header("Настройки")]
+    [SerializeField] private string requiredItem = "Таз с бельем";
+    [SerializeField] private int clicksRequired = 5; 
+    [SerializeField] private string prompt = "Повесить белье";
+
+    [SerializeField] private GameObject[] clothesPieces;
+
+    private int currentClicks = 0;
+    private bool isDone = false;
+
+    public override string InteractionPrompt => isDone ? "" : (PlayerInventory.Instance != null && PlayerInventory.Instance.HasItem(requiredItem)) ? prompt : "Нужно белье";
+
+    protected override void Awake()
+    {
+        base.Awake();
+
+        if (clothesPieces == null || clothesPieces.Length == 0)
+        {
+            int childCount = transform.childCount;
+            clothesPieces = new GameObject[childCount];
+            for (int i = 0; i < childCount; i++)
+            {
+                clothesPieces[i] = transform.GetChild(i).gameObject;
+            }
+        }
+
+        if (clothesPieces != null && clothesPieces.Length > 0)
+        {
+            clicksRequired = clothesPieces.Length;
+        }
+
+        if (clothesPieces != null)
+        {
+            foreach (var piece in clothesPieces)
+            {
+                if (piece != null) piece.SetActive(false);
+            }
+        }
+    }
+
+    public override bool Interact(GameObject interactor)
+    {
+        if (isDone) return false;
+
+        if (PlayerInventory.Instance != null && PlayerInventory.Instance.HasItem(requiredItem))
+        {
+            currentClicks++;
+            
+            if (clothesPieces != null && currentClicks - 1 < clothesPieces.Length)
+            {
+                if (clothesPieces[currentClicks - 1] != null)
+                {
+                    clothesPieces[currentClicks - 1].SetActive(true);
+                }
+            }
+
+            if (currentClicks >= clicksRequired)
+            {
+                FinishHanging();
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    private void FinishHanging()
+    {
+        isDone = true;
+        OnHoverExit();
+
+        if (PlayerInventory.Instance != null)
+        {
+            PlayerInventory.Instance.ClearHand();
+        }
+
+        if (TaskManager.Instance != null)
+        {
+            TaskManager.Instance.CompleteCurrentTask();
+        }
+
+        Debug.Log("Всё белье развешано!");
+    }
+
+    public override void OnHoverEnter()
+    {
+        if (isDone) return;
+        base.OnHoverEnter();
+    }
+}
