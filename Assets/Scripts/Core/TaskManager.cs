@@ -7,12 +7,11 @@ public class TaskManager : MonoBehaviour
     public static TaskManager Instance { get; private set; }
 
     [Header("UI")]
-    [SerializeField] private TextMeshProUGUI taskText; // Ссылка на UI текст задания на экране
+    [SerializeField] private TextMeshProUGUI taskText; 
     
     [Header("Настройки")]
-    [SerializeField] private string prefix = "- "; // Префикс перед заданием
+    [SerializeField] private string prefix = "- "; 
 
-    // Список всех заданий (хронология)
     [TextArea(2, 3)]
     [SerializeField] private List<string> allTasks = new List<string>()
     {
@@ -32,7 +31,6 @@ public class TaskManager : MonoBehaviour
 
     private void Awake()
     {
-        // Делаем этот класс Singleton, чтобы к нему можно было обращаться из любого скрипта: TaskManager.Instance
         if (Instance == null)
         {
             Instance = this;
@@ -46,11 +44,10 @@ public class TaskManager : MonoBehaviour
     private void Start()
     {
         UpdateUI();
+        // При старте оповещаем всех о текущем задании
+        GameEventManager.TriggerTaskChanged(currentTaskIndex);
     }
 
-    /// <summary>
-    /// Вызывать этот метод, когда текущее задание выполнено.
-    /// </summary>
     public void CompleteCurrentTask()
     {
         if (currentTaskIndex < allTasks.Count - 1)
@@ -58,21 +55,20 @@ public class TaskManager : MonoBehaviour
             currentTaskIndex++;
             Debug.Log($"Задание выполнено! Новое задание: {allTasks[currentTaskIndex]}");
             UpdateUI();
+            
+            // Оповещаем другие скрипты о смене задания через Event Bus
+            GameEventManager.TriggerTaskChanged(currentTaskIndex);
         }
         else
         {
             Debug.Log("Все задания выполнены!");
             if (taskText != null)
             {
-                taskText.text = ""; // Очищаем текст
+                taskText.text = ""; 
             }
         }
     }
 
-    /// <summary>
-    /// Вызывать этот метод, если нужно проверить, какое сейчас активно задание
-    /// (например, чтобы микроволновка работала только когда активно задание "Разогреть еду")
-    /// </summary>
     public int GetCurrentTaskIndex()
     {
         return currentTaskIndex;
