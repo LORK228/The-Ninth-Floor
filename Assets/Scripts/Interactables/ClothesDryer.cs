@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Zenject;
 
 public class ClothesDryer : BaseInteractable
 {
@@ -12,7 +13,18 @@ public class ClothesDryer : BaseInteractable
     private int currentClicks = 0;
     private bool isDone = false;
 
-    public override string InteractionPrompt => isDone ? "" : (PlayerInventory.Instance != null && PlayerInventory.Instance.HasItem(requiredItem)) ? prompt : "Нужно белье";
+    // Зависим от ИНТЕРФЕЙСОВ
+    private IPlayerInventory inventory;
+    private ITaskManager taskManager;
+
+    [Inject]
+    public void Construct(IPlayerInventory inventory, ITaskManager taskManager)
+    {
+        this.inventory = inventory;
+        this.taskManager = taskManager;
+    }
+
+    public override string InteractionPrompt => isDone ? "" : (inventory != null && inventory.HasItem(requiredItem)) ? prompt : "Нужно белье";
 
     protected override void Awake()
     {
@@ -46,7 +58,7 @@ public class ClothesDryer : BaseInteractable
     {
         if (isDone) return false;
 
-        if (PlayerInventory.Instance != null && PlayerInventory.Instance.HasItem(requiredItem))
+        if (inventory != null && inventory.HasItem(requiredItem))
         {
             currentClicks++;
             
@@ -73,14 +85,14 @@ public class ClothesDryer : BaseInteractable
         isDone = true;
         OnHoverExit();
 
-        if (PlayerInventory.Instance != null)
+        if (inventory != null)
         {
-            PlayerInventory.Instance.ClearHand();
+            inventory.ClearHand();
         }
 
-        if (TaskManager.Instance != null)
+        if (taskManager != null)
         {
-            TaskManager.Instance.CompleteCurrentTask();
+            taskManager.CompleteCurrentTask();
         }
 
         Debug.Log("Всё белье развешано!");

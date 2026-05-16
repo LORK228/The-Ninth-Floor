@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Zenject;
 
 public class PickupItem : BaseInteractable
 {
@@ -7,16 +8,24 @@ public class PickupItem : BaseInteractable
     [SerializeField] private string itemName = "Холодная еда";
     [SerializeField] private GameObject itemPrefabInHand; 
     
-    [Tooltip("Если -1, то можно взять всегда. Иначе - только на определенном этапе игры.")]
     [SerializeField] private int requiredTaskIndex = 3; 
 
     [Header("Положение в руке")]
-    [Tooltip("Смещение объекта в руке (относительно HandPoint)")]
     [SerializeField] private Vector3 handPositionOffset = Vector3.zero;
-    [Tooltip("Поворот объекта в руке (относительно HandPoint)")]
     [SerializeField] private Vector3 handRotationOffset = Vector3.zero;
 
     private bool isLocked = false;
+    
+    // Зависим от ИНТЕРФЕЙСОВ
+    private IPlayerInventory inventory;
+    private ITaskManager taskManager;
+
+    [Inject]
+    public void Construct(IPlayerInventory inventory, ITaskManager taskManager)
+    {
+        this.inventory = inventory;
+        this.taskManager = taskManager;
+    }
 
     public override string InteractionPrompt => isLocked ? "" : prompt;
 
@@ -25,10 +34,10 @@ public class PickupItem : BaseInteractable
         if (requiredTaskIndex != -1)
         {
             GameEventManager.OnTaskChanged += HandleTaskChanged;
-            // Проверяем текущее состояние при включении
-            if (TaskManager.Instance != null)
+            
+            if (taskManager != null)
             {
-                HandleTaskChanged(TaskManager.Instance.GetCurrentTaskIndex());
+                HandleTaskChanged(taskManager.GetCurrentTaskIndex());
             }
         }
     }
@@ -50,10 +59,9 @@ public class PickupItem : BaseInteractable
     {
         if (isLocked) return false;
 
-        if (PlayerInventory.Instance != null)
+        if (inventory != null)
         {
-            // Передаем настройки смещения в инвентарь
-            PlayerInventory.Instance.GiveItem(itemName, itemPrefabInHand, handPositionOffset, handRotationOffset);
+            inventory.GiveItem(itemName, itemPrefabInHand, handPositionOffset, handRotationOffset);
             Destroy(gameObject);
             return true;
         }

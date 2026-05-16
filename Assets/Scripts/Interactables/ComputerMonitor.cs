@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.Video;
+using Zenject;
 
 public class ComputerMonitor : BaseInteractable
 {
@@ -16,6 +17,15 @@ public class ComputerMonitor : BaseInteractable
     private bool isPlaying = false;
     private bool isLocked = true;
 
+    // Зависим от ИНТЕРФЕЙСА
+    private ITaskManager taskManager;
+
+    [Inject]
+    public void Construct(ITaskManager taskManager)
+    {
+        this.taskManager = taskManager;
+    }
+
     public override string InteractionPrompt => isPlaying || isLocked ? "" : (playerChair != null && playerChair.IsOccupied()) ? prompt : "Нужно сесть за стол";
 
     protected override void Awake()
@@ -31,6 +41,10 @@ public class ComputerMonitor : BaseInteractable
     private void OnEnable()
     {
         GameEventManager.OnTaskChanged += HandleTaskChanged;
+        if (taskManager != null)
+        {
+            HandleTaskChanged(taskManager.GetCurrentTaskIndex());
+        }
     }
 
     private void OnDisable()
@@ -40,7 +54,6 @@ public class ComputerMonitor : BaseInteractable
 
     private void HandleTaskChanged(int newTaskIndex)
     {
-        // Включить видео можно, когда задание 5 или выше (если по ТЗ это не блокирует дальнейшую игру)
         isLocked = (newTaskIndex < taskIndexRequired - 1);
     }
 
@@ -62,9 +75,9 @@ public class ComputerMonitor : BaseInteractable
             isPlaying = true;
             OnHoverExit();
 
-            if (TaskManager.Instance != null && TaskManager.Instance.GetCurrentTaskIndex() == taskIndexRequired)
+            if (taskManager != null && taskManager.GetCurrentTaskIndex() == taskIndexRequired)
             {
-                 // TaskManager.Instance.CompleteCurrentTask();
+                 // taskManager.CompleteCurrentTask();
             }
 
             return true;

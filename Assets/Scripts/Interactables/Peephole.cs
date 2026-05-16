@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Zenject;
 
 public class Peephole : BaseInteractable
 {
@@ -22,6 +23,15 @@ public class Peephole : BaseInteractable
     private Vector3 coverClosedPosition;
     private float currentCoverDistance = 0f;
 
+    // Зависим от ИНТЕРФЕЙСА
+    private ITaskManager taskManager;
+
+    [Inject]
+    public void Construct(ITaskManager taskManager)
+    {
+        this.taskManager = taskManager;
+    }
+
     public override string InteractionPrompt => isLooking ? "ЛКМ / ESC - отойти" : (isLocked ? "" : prompt);
 
     protected override void Awake()
@@ -43,6 +53,10 @@ public class Peephole : BaseInteractable
     private void OnEnable()
     {
         GameEventManager.OnTaskChanged += HandleTaskChanged;
+        if (taskManager != null)
+        {
+            HandleTaskChanged(taskManager.GetCurrentTaskIndex());
+        }
     }
 
     private void OnDisable()
@@ -142,9 +156,9 @@ public class Peephole : BaseInteractable
             cover.gameObject.SetActive(false);
         }
 
-        if (TaskManager.Instance != null && TaskManager.Instance.GetCurrentTaskIndex() == taskIndexRequired)
+        if (taskManager != null)
         {
-            TaskManager.Instance.CompleteCurrentTask();
+            taskManager.CompleteCurrentTask();
         }
     }
 

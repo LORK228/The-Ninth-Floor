@@ -1,39 +1,32 @@
 ﻿using UnityEngine;
+using UnityEngine.Rendering;
+using Zenject;
 
-public class PlayerInventory : MonoBehaviour
+public class PlayerInventory : MonoBehaviour, IPlayerInventory
 {
-    public static PlayerInventory Instance { get; private set; }
-
     [Header("Настройки")]
     [Tooltip("Пустой объект дочерний к камере, где будут появляться предметы")]
     [SerializeField] private Transform handPoint;
 
+    [Tooltip("Индекс слоя для предметов в руках (например, 6 для Portable)")]
+    [SerializeField] private int portableLayerIndex = 6;
+    
+    [Tooltip("Маска Rendering Layer (Light Layer) для предметов в руках. 2 = Light Layer 1 (HandItems)")]
+    [SerializeField] private uint handItemRenderingLayer = 2;
+
     private GameObject currentItemObj;
     public string CurrentItemName { get; private set; }
 
-    private void Awake()
+    [Inject]
+    public void Construct()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
     }
 
-    /// <summary>
-    /// Выдать предмет игроку в руки со стандартными настройками (без смещения)
-    /// </summary>
     public void GiveItem(string itemName, GameObject itemPrefab)
     {
         GiveItem(itemName, itemPrefab, Vector3.zero, Vector3.zero);
     }
 
-    /// <summary>
-    /// Выдать предмет игроку в руки с кастомным смещением и поворотом
-    /// </summary>
     public void GiveItem(string itemName, GameObject itemPrefab, Vector3 localPositionOffset, Vector3 localRotationOffset)
     {
         ClearHand();
@@ -44,24 +37,44 @@ public class PlayerInventory : MonoBehaviour
         {
             currentItemObj = Instantiate(itemPrefab, handPoint);
             
-            // Применяем локальное смещение и поворот относительно handPoint
             currentItemObj.transform.localPosition = localPositionOffset;
             currentItemObj.transform.localRotation = Quaternion.Euler(localRotationOffset);
             
-            // Отключаем коллайдеры у предмета в руках, чтобы они не мешали лучу взаимодействия и физике игрока
+            // Отключаем коллайдеры
             Collider[] colliders = currentItemObj.GetComponentsInChildren<Collider>();
             foreach (var col in colliders)
             {
                 col.enabled = false;
             }
+
+            // Настраиваем рендереры предмета в руках
+            Renderer[] renderers = currentItemObj.GetComponentsInChildren<Renderer>();
+            foreach (var rend in renderers)
+            {
+                rend.receiveShadows = false;
+                rend.shadowCastingMode = ShadowCastingMode.Off;
+                
+                rend.lightProbeUsage = LightProbeUsage.Off;
+                rend.reflectionProbeUsage = ReflectionProbeUsage.Off;
+                rend.renderingLayerMask = handItemRenderingLayer;
+            }
+
+            // Меняем слой объекту и всем его дочерним элементам
+            SetLayerRecursively(currentItemObj, portableLayerIndex);
         }
         
         Debug.Log($"Игрок взял: {itemName}");
     }
 
-    /// <summary>
-    /// Убрать текущий предмет из рук
-    /// </summary>
+    private void SetLayerRecursively(GameObject obj, int newLayer)
+    {
+        obj.layer = newLayer;
+        foreach (Transform child in obj.transform)
+        {
+            SetLayerRecursively(child.gameObject, newLayer);
+        }
+    }
+
     public void ClearHand()
     {
         if (currentItemObj != null)
@@ -71,9 +84,6 @@ public class PlayerInventory : MonoBehaviour
         CurrentItemName = "";
     }
 
-    /// <summary>
-    /// Проверить, держит ли игрок определенный предмет
-    /// </summary>
     public bool HasItem(string itemName)
     {
         return CurrentItemName == itemName;

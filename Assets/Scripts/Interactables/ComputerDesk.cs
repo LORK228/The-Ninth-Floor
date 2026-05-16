@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Zenject;
 
 public class ComputerDesk : BaseInteractable
 {
@@ -13,11 +14,26 @@ public class ComputerDesk : BaseInteractable
     private bool hasFood = false;
     private bool isLocked = true;
 
-    public override string InteractionPrompt => hasFood || isLocked ? "" : (PlayerInventory.Instance != null && PlayerInventory.Instance.HasItem(requiredItem)) ? prompt : "Нужна горячая еда";
+    // Зависим от ИНТЕРФЕЙСОВ
+    private IPlayerInventory inventory;
+    private ITaskManager taskManager;
+
+    [Inject]
+    public void Construct(IPlayerInventory inventory, ITaskManager taskManager)
+    {
+        this.inventory = inventory;
+        this.taskManager = taskManager;
+    }
+
+    public override string InteractionPrompt => hasFood || isLocked ? "" : (inventory != null && inventory.HasItem(requiredItem)) ? prompt : "Нужна горячая еда";
 
     private void OnEnable()
     {
         GameEventManager.OnTaskChanged += HandleTaskChanged;
+        if (taskManager != null)
+        {
+            HandleTaskChanged(taskManager.GetCurrentTaskIndex());
+        }
     }
 
     private void OnDisable()
@@ -34,9 +50,9 @@ public class ComputerDesk : BaseInteractable
     {
         if (hasFood || isLocked) return false;
 
-        if (PlayerInventory.Instance != null && PlayerInventory.Instance.HasItem(requiredItem))
+        if (inventory != null && inventory.HasItem(requiredItem))
         {
-            PlayerInventory.Instance.ClearHand();
+            inventory.ClearHand();
             
             if (foodOnDeskPrefab != null && foodSpawnPoint != null)
             {
@@ -46,9 +62,9 @@ public class ComputerDesk : BaseInteractable
             hasFood = true;
             OnHoverExit();
 
-            if (TaskManager.Instance != null)
+            if (taskManager != null)
             {
-                TaskManager.Instance.CompleteCurrentTask();
+                taskManager.CompleteCurrentTask();
             }
 
             return true;

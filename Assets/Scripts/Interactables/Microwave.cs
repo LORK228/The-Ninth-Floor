@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using Zenject;
 
 public class Microwave : BaseInteractable
 {
@@ -15,15 +16,24 @@ public class Microwave : BaseInteractable
     [SerializeField] private int taskIndexRequired = 3; 
 
     [Header("Положение в руке (готовая еда)")]
-    [Tooltip("Смещение объекта в руке (относительно HandPoint)")]
     [SerializeField] private Vector3 handPositionOffset = Vector3.zero;
-    [Tooltip("Поворот объекта в руке (относительно HandPoint)")]
     [SerializeField] private Vector3 handRotationOffset = Vector3.zero;
     
     public enum MicrowaveState { Idle, Heating, Done, Locked }
     private MicrowaveState currentState = MicrowaveState.Locked;
     
     private GameObject currentFoodInside; 
+
+    // Зависим от ИНТЕРФЕЙСОВ
+    private IPlayerInventory inventory;
+    private ITaskManager taskManager;
+
+    [Inject]
+    public void Construct(IPlayerInventory inventory, ITaskManager taskManager)
+    {
+        this.inventory = inventory;
+        this.taskManager = taskManager;
+    }
 
     public override string InteractionPrompt
     {
@@ -34,7 +44,7 @@ public class Microwave : BaseInteractable
                 case MicrowaveState.Locked:
                     return ""; 
                 case MicrowaveState.Idle:
-                    return (PlayerInventory.Instance != null && PlayerInventory.Instance.HasItem(requiredItem)) ? "Поставить еду" : "Нужна холодная еда";
+                    return (inventory != null && inventory.HasItem(requiredItem)) ? "Поставить еду" : "Нужна холодная еда";
                 case MicrowaveState.Heating:
                     return "Греется...";
                 case MicrowaveState.Done:
@@ -48,6 +58,10 @@ public class Microwave : BaseInteractable
     private void OnEnable()
     {
         GameEventManager.OnTaskChanged += HandleTaskChanged;
+        if (taskManager != null)
+        {
+            HandleTaskChanged(taskManager.GetCurrentTaskIndex());
+        }
     }
 
     private void OnDisable()
@@ -73,9 +87,9 @@ public class Microwave : BaseInteractable
 
         if (currentState == MicrowaveState.Idle)
         {
-            if (PlayerInventory.Instance != null && PlayerInventory.Instance.HasItem(requiredItem))
+            if (inventory != null && inventory.HasItem(requiredItem))
             {
-                PlayerInventory.Instance.ClearHand();
+                inventory.ClearHand();
                 
                 if (foodInsidePrefab != null && insidePoint != null)
                 {
@@ -88,9 +102,9 @@ public class Microwave : BaseInteractable
         }
         else if (currentState == MicrowaveState.Done)
         {
-            if (PlayerInventory.Instance != null)
+            if (inventory != null)
             {
-                PlayerInventory.Instance.GiveItem(heatedItemName, heatedItemPrefab, handPositionOffset, handRotationOffset);
+                inventory.GiveItem(heatedItemName, heatedItemPrefab, handPositionOffset, handRotationOffset);
                 
                 if (currentFoodInside != null)
                 {
@@ -100,9 +114,9 @@ public class Microwave : BaseInteractable
                 currentState = MicrowaveState.Idle;
                 OnHoverExit();
                 
-                if (TaskManager.Instance != null)
+                if (taskManager != null)
                 {
-                    TaskManager.Instance.CompleteCurrentTask();
+                    taskManager.CompleteCurrentTask();
                 }
                 
                 return true;

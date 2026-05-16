@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Zenject;
 
 public class AlarmClock : BaseInteractable
 {
@@ -10,7 +11,16 @@ public class AlarmClock : BaseInteractable
     [SerializeField] private AudioSource audioSource;
 
     private bool isTurnedOff = false;
-    private bool isLocked = true; // Блокируем до нужного задания
+    private bool isLocked = true; 
+
+    // Зависим от ИНТЕРФЕЙСА, а не от класса
+    private ITaskManager taskManager;
+
+    [Inject]
+    public void Construct(ITaskManager taskManager)
+    {
+        this.taskManager = taskManager;
+    }
 
     public override string InteractionPrompt => isTurnedOff || isLocked ? "" : prompt;
 
@@ -27,6 +37,11 @@ public class AlarmClock : BaseInteractable
     private void OnEnable()
     {
         GameEventManager.OnTaskChanged += HandleTaskChanged;
+        
+        if (taskManager != null)
+        {
+            HandleTaskChanged(taskManager.GetCurrentTaskIndex());
+        }
     }
 
     private void OnDisable()
@@ -62,9 +77,9 @@ public class AlarmClock : BaseInteractable
             audioSource.Stop();
         }
 
-        if (TaskManager.Instance != null)
+        if (taskManager != null)
         {
-            TaskManager.Instance.CompleteCurrentTask();
+            taskManager.CompleteCurrentTask();
         }
         
         Debug.Log("Будильник выключен!");

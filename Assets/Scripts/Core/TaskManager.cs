@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using Zenject;
 
-public class TaskManager : MonoBehaviour
+public class TaskManager : MonoBehaviour, ITaskManager
 {
-    public static TaskManager Instance { get; private set; }
-
     [Header("UI")]
     [SerializeField] private TextMeshProUGUI taskText; 
     
@@ -29,22 +28,14 @@ public class TaskManager : MonoBehaviour
 
     private int currentTaskIndex = 0;
 
-    private void Awake()
+    [Inject]
+    public void Construct()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
     }
 
     private void Start()
     {
         UpdateUI();
-        // При старте оповещаем всех о текущем задании
         GameEventManager.TriggerTaskChanged(currentTaskIndex);
     }
 
@@ -56,7 +47,6 @@ public class TaskManager : MonoBehaviour
             Debug.Log($"Задание выполнено! Новое задание: {allTasks[currentTaskIndex]}");
             UpdateUI();
             
-            // Оповещаем другие скрипты о смене задания через Event Bus
             GameEventManager.TriggerTaskChanged(currentTaskIndex);
         }
         else

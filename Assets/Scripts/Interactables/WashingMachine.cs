@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Zenject;
 
 public class WashingMachine : BaseInteractable
 {
@@ -11,19 +12,32 @@ public class WashingMachine : BaseInteractable
     [SerializeField] private GameObject basketPrefab; 
 
     [Header("Положение в руке")]
-    [Tooltip("Смещение объекта в руке (относительно HandPoint)")]
     [SerializeField] private Vector3 handPositionOffset = Vector3.zero;
-    [Tooltip("Поворот объекта в руке (относительно HandPoint)")]
     [SerializeField] private Vector3 handRotationOffset = Vector3.zero;
 
     private bool isEmptied = false;
     private bool isLocked = true; 
+
+    // Зависим от ИНТЕРФЕЙСОВ
+    private IPlayerInventory inventory;
+    private ITaskManager taskManager;
+
+    [Inject]
+    public void Construct(IPlayerInventory inventory, ITaskManager taskManager)
+    {
+        this.inventory = inventory;
+        this.taskManager = taskManager;
+    }
 
     public override string InteractionPrompt => isEmptied || isLocked ? "" : prompt;
 
     private void OnEnable()
     {
         GameEventManager.OnTaskChanged += HandleTaskChanged;
+        if (taskManager != null)
+        {
+            HandleTaskChanged(taskManager.GetCurrentTaskIndex());
+        }
     }
 
     private void OnDisable()
@@ -47,9 +61,9 @@ public class WashingMachine : BaseInteractable
     {
         if (isEmptied || isLocked) return false;
 
-        if (PlayerInventory.Instance != null)
+        if (inventory != null)
         {
-            PlayerInventory.Instance.GiveItem(itemName, basketPrefab, handPositionOffset, handRotationOffset);
+            inventory.GiveItem(itemName, basketPrefab, handPositionOffset, handRotationOffset);
             isEmptied = true;
             isLocked = true;
             OnHoverExit(); 

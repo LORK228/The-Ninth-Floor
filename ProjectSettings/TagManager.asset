@@ -3,7 +3,9 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - ship
+  - asteroid
   layers:
   - Default
   - TransparentFX
@@ -11,7 +13,7 @@ TagManager:
   - Interactable
   - Water
   - UI
-  - 
+  - Portable
   - 
   - 
   - 
@@ -43,7 +45,7 @@ TagManager:
     locked: 0
   m_RenderingLayers:
   - Default
-  - Light Layer 1
+  - HandItems
   - Light Layer 2
   - Light Layer 3
   - Light Layer 4
