@@ -3,6 +3,7 @@ using Zenject;
 
 public class GameInstaller : MonoInstaller
 {
+    // ReSharper disable Unity.PerformanceAnalysis
     public override void InstallBindings()
     {
         // Биндим интерфейс ITaskManager к конкретной реализации TaskManager на сцене

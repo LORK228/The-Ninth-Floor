@@ -27,13 +27,14 @@ public class PlayerInventory : MonoBehaviour, IPlayerInventory
         GiveItem(itemName, itemPrefab, Vector3.zero, Vector3.zero);
     }
 
+    // ReSharper disable Unity.PerformanceAnalysis
     public void GiveItem(string itemName, GameObject itemPrefab, Vector3 localPositionOffset, Vector3 localRotationOffset)
     {
         ClearHand();
 
         CurrentItemName = itemName;
 
-        if (itemPrefab != null && handPoint != null)
+        if (itemPrefab && handPoint)
         {
             currentItemObj = Instantiate(itemPrefab, handPoint);
             
@@ -77,7 +78,7 @@ public class PlayerInventory : MonoBehaviour, IPlayerInventory
 
     public void ClearHand()
     {
-        if (currentItemObj != null)
+        if (currentItemObj)
         {
             Destroy(currentItemObj);
         }

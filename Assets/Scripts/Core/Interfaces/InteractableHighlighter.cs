@@ -28,7 +28,7 @@ public class InteractableHighlighter : MonoBehaviour
             originalColors = new Color[meshRenderers.Length][];
             for (int i = 0; i < meshRenderers.Length; i++)
             {
-                if (meshRenderers[i] != null)
+                if (meshRenderers[i])
                 {
                     Material[] mats = meshRenderers[i].materials;
                     originalColors[i] = new Color[mats.Length];
@@ -50,7 +50,7 @@ public class InteractableHighlighter : MonoBehaviour
         
         for (int i = 0; i < meshRenderers.Length; i++)
         {
-            if (meshRenderers[i] != null)
+            if (meshRenderers[i])
             {
                 Material[] mats = meshRenderers[i].materials;
                 for (int j = 0; j < mats.Length; j++)
@@ -70,7 +70,7 @@ public class InteractableHighlighter : MonoBehaviour
         
         for (int i = 0; i < meshRenderers.Length; i++)
         {
-            if (meshRenderers[i] != null && originalColors[i] != null)
+            if (meshRenderers[i]&& originalColors[i] != null)
             {
                 Material[] mats = meshRenderers[i].materials;
                 for (int j = 0; j < mats.Length; j++)

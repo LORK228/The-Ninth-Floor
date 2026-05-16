@@ -54,7 +54,7 @@ public class ComputerDesk : BaseInteractable
         {
             inventory.ClearHand();
             
-            if (foodOnDeskPrefab != null && foodSpawnPoint != null)
+            if (foodOnDeskPrefab && foodSpawnPoint)
             {
                 Instantiate(foodOnDeskPrefab, foodSpawnPoint.position, foodSpawnPoint.rotation);
             }

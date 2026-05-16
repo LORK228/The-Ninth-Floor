@@ -80,6 +80,7 @@ public class ClothesDryer : BaseInteractable
         return false;
     }
 
+    // ReSharper disable Unity.PerformanceAnalysis
     private void FinishHanging()
     {
         isDone = true;

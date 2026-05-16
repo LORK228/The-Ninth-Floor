@@ -9,7 +9,9 @@ public class Chair : BaseInteractable
     
     private bool isOccupied = false;
     private GameObject currentPlayerObj;
-    private FirstPersonController fpc;
+    
+    // Кэшируем ссылку для оптимизации
+    private FirstPersonController fpc; 
     
     private Vector3 standPosition;
     
@@ -40,8 +42,14 @@ public class Chair : BaseInteractable
 
     private void SitDown(GameObject interactor)
     {
-        fpc = interactor.GetComponentInParent<FirstPersonController>();
-        if (fpc == null) return;
+        // ОПТИМИЗАЦИЯ: Ищем компонент только один раз
+        if (!fpc)
+        {
+            fpc = interactor.GetComponent<FirstPersonController>();
+            if (!fpc) fpc = interactor.GetComponentInParent<FirstPersonController>();
+        }
+        
+        if (!fpc) return;
         
         currentPlayerObj = fpc.gameObject;
         standPosition = currentPlayerObj.transform.position;
@@ -56,15 +64,16 @@ public class Chair : BaseInteractable
         fpc.enableCrouch = false;
         fpc.enableHeadBob = false;
         
+        // Оптимизация: кэшируем и Rigidbody, так как мы используем его дважды
         Rigidbody rb = currentPlayerObj.GetComponent<Rigidbody>();
-        if (rb != null)
+        if (rb)
         {
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
             rb.isKinematic = true;
         }
 
-        if (sitPoint != null)
+        if (sitPoint)
         {
             currentPlayerObj.transform.position = sitPoint.position;
         }
@@ -79,7 +88,7 @@ public class Chair : BaseInteractable
 
     private void StandUp()
     {
-        if (fpc != null)
+        if (fpc)
         {
             fpc.playerCanMove = wasPlayerCanMove;
             fpc.enableJump = wasEnableJump;
@@ -87,17 +96,20 @@ public class Chair : BaseInteractable
             fpc.enableHeadBob = wasEnableHeadBob;
         }
 
-        Rigidbody rb = currentPlayerObj.GetComponent<Rigidbody>();
-        if (rb != null)
+        if (currentPlayerObj)
         {
-            rb.isKinematic = false;
+            Rigidbody rb = currentPlayerObj.GetComponent<Rigidbody>();
+            if (rb)
+            {
+                rb.isKinematic = false;
+            }
+            
+            currentPlayerObj.transform.position = standPosition;
         }
-
-        currentPlayerObj.transform.position = standPosition;
         
         isOccupied = false;
         currentPlayerObj = null;
-        fpc = null;
+        // Не обнуляем fpc, чтобы использовать закэшированное значение в следующий раз
     }
 
     public override void OnHoverEnter()

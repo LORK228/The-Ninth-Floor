@@ -59,6 +59,7 @@ public class TaskManager : MonoBehaviour, ITaskManager
         }
     }
 
+    // ReSharper disable Unity.PerformanceAnalysis
     public void CompleteCurrentTask()
     {
         if (currentTaskIndex < allTasks.Count - 1)
@@ -72,7 +73,7 @@ public class TaskManager : MonoBehaviour, ITaskManager
         else
         {
             Debug.Log("Все задания выполнены!");
-            if (taskText != null)
+            if (taskText)
             {
                 taskText.text = ""; 
             }
@@ -86,7 +87,7 @@ public class TaskManager : MonoBehaviour, ITaskManager
 
     private void UpdateUI()
     {
-        if (taskText != null && currentTaskIndex < allTasks.Count)
+        if (taskText && currentTaskIndex < allTasks.Count)
         {
             taskText.text = prefix + allTasks[currentTaskIndex];
         }

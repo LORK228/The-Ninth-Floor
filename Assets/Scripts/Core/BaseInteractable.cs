@@ -28,7 +28,7 @@ public abstract class BaseInteractable : MonoBehaviour, IInteractable
     public virtual void OnHoverEnter()
     {
         // Базовая реализация - включить подсветку
-        if (highlighter != null)
+        if (highlighter)
         {
             highlighter.Highlight();
         }
@@ -37,7 +37,7 @@ public abstract class BaseInteractable : MonoBehaviour, IInteractable
     public virtual void OnHoverExit()
     {
         // Базовая реализация - выключить подсветку
-        if (highlighter != null)
+        if (highlighter)
         {
             highlighter.RemoveHighlight();
         }

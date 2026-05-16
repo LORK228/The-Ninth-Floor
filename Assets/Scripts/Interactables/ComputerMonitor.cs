@@ -61,11 +61,11 @@ public class ComputerMonitor : BaseInteractable
     {
         if (isPlaying || isLocked) return false;
 
-        if (playerChair != null && playerChair.IsOccupied())
+        if (playerChair && playerChair.IsOccupied())
         {
-            if (videoPlayer != null)
+            if (videoPlayer)
             {
-                if (videoScreenObject != null)
+                if (videoScreenObject)
                 {
                     videoScreenObject.SetActive(true);
                 }

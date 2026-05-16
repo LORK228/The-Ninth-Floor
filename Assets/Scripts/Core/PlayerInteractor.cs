@@ -12,6 +12,7 @@ public class PlayerInteractor : MonoBehaviour
 
     private Camera cam;
     private IInteractable currentInteractable;
+    private Collider lastHitCollider; // Кэшируем коллайдер для оптимизации
 
     private void Awake()
     {
@@ -40,13 +41,12 @@ public class PlayerInteractor : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, interactionDistance, interactableLayerMask))
         {
-            // Поскольку у нас скрипт теперь на пустом объекте (родителе),
-            // а коллайдер скорее всего на самой двери (ребенке),
-            // используем GetComponentInParent
-            IInteractable interactableObj = hit.collider.GetComponentInParent<IInteractable>();
-
-            if (interactableObj != null)
+            // ОПТИМИЗАЦИЯ: вызываем GetComponentInParent только если мы посмотрели на новый объект
+            if (hit.collider != lastHitCollider)
             {
+                lastHitCollider = hit.collider;
+                IInteractable interactableObj = hit.collider.GetComponentInParent<IInteractable>();
+
                 if (interactableObj != currentInteractable)
                 {
                     if (currentInteractable != null)
@@ -55,22 +55,23 @@ public class PlayerInteractor : MonoBehaviour
                     }
 
                     currentInteractable = interactableObj;
-                    currentInteractable.OnHoverEnter();
-                    UpdateUI();
-                }
-                else
-                {
-                    // Обновляем текст, так как состояние объекта могло измениться (например, открылась дверь)
+                    
+                    if (currentInteractable != null)
+                    {
+                        currentInteractable.OnHoverEnter();
+                    }
                     UpdateUI();
                 }
             }
             else
             {
-                ClearCurrentInteractable();
+                // Если мы смотрим на тот же объект, просто обновляем UI (если его состояние изменилось)
+                UpdateUI();
             }
         }
         else
         {
+            lastHitCollider = null;
             ClearCurrentInteractable();
         }
     }
@@ -79,7 +80,8 @@ public class PlayerInteractor : MonoBehaviour
     {
         if (Input.GetKeyDown(interactKey) && currentInteractable != null)
         {
-            if (currentInteractable.Interact(this.gameObject))
+            // Передаем сам корень игрока (чтобы внутри объектов не использовать GetComponentInParent)
+            if (currentInteractable.Interact(transform.root.gameObject))
             {
                 UpdateUI();
             }
@@ -93,7 +95,7 @@ public class PlayerInteractor : MonoBehaviour
             currentInteractable.OnHoverExit();
             currentInteractable = null;
             
-            if (promptText != null)
+            if (promptText)
             {
                 promptText.gameObject.SetActive(false);
             }
@@ -102,7 +104,7 @@ public class PlayerInteractor : MonoBehaviour
     
     private void UpdateUI()
     {
-        if (promptText != null && currentInteractable != null)
+        if (promptText && currentInteractable != null)
         {
             promptText.text = currentInteractable.InteractionPrompt;
             promptText.gameObject.SetActive(true);

@@ -67,12 +67,13 @@ public class AlarmClock : BaseInteractable
         return true;
     }
 
+    // ReSharper disable Unity.PerformanceAnalysis
     private void TurnOff()
     {
         isTurnedOff = true;
         OnHoverExit(); 
 
-        if (audioSource != null)
+        if (audioSource)
         {
             audioSource.Stop();
         }

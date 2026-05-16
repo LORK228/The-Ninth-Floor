@@ -18,12 +18,13 @@ public class Peephole : BaseInteractable
 
     private bool isLooking = false;
     private bool isLocked = true;
+    
+    // Кэшируем контроллер для оптимизации
     private FirstPersonController fpc;
     
     private Vector3 coverClosedPosition;
     private float currentCoverDistance = 0f;
 
-    // Зависим от ИНТЕРФЕЙСА
     private ITaskManager taskManager;
 
     [Inject]
@@ -73,7 +74,7 @@ public class Peephole : BaseInteractable
     {
         if (isLooking)
         {
-            if (cover != null && currentCoverDistance < maxCoverDistance)
+            if (cover && currentCoverDistance < maxCoverDistance)
             {
                 float mouseY = Input.GetAxis("Mouse Y");
                 
@@ -105,8 +106,14 @@ public class Peephole : BaseInteractable
 
     private void StartLooking(GameObject interactor)
     {
-        fpc = interactor.GetComponentInParent<FirstPersonController>();
-        if (fpc == null) return;
+        // ОПТИМИЗАЦИЯ: Ищем компонент только один раз
+        if (!fpc)
+        {
+            fpc = interactor.GetComponent<FirstPersonController>();
+            if (!fpc) fpc = interactor.GetComponentInParent<FirstPersonController>();
+        }
+        
+        if (!fpc) return;
 
         isLooking = true;
 
@@ -116,12 +123,12 @@ public class Peephole : BaseInteractable
         fpc.enableCrouch = false;
         
         fpc.playerCamera.gameObject.SetActive(false);
-        if (peepholeCamera != null)
+        if (peepholeCamera)
         {
             peepholeCamera.gameObject.SetActive(true);
         }
 
-        if (cover != null)
+        if (cover)
         {
             cover.gameObject.SetActive(true);
         }
@@ -133,7 +140,7 @@ public class Peephole : BaseInteractable
     {
         isLooking = false;
 
-        if (fpc != null)
+        if (fpc)
         {
             fpc.playerCanMove = true;
             fpc.cameraCanMove = true;
@@ -141,15 +148,15 @@ public class Peephole : BaseInteractable
             fpc.enableCrouch = true;
             
             fpc.playerCamera.gameObject.SetActive(true);
-            fpc = null;
+            // Не обнуляем fpc, чтобы использовать кэш в следующий раз
         }
 
-        if (peepholeCamera != null)
+        if (peepholeCamera)
         {
             peepholeCamera.gameObject.SetActive(false);
         }
 
-        if (cover != null)
+        if (cover)
         {
             currentCoverDistance = 0f;
             cover.localPosition = coverClosedPosition;

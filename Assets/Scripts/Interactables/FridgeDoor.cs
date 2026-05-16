@@ -56,7 +56,7 @@ public class FridgeDoor : BaseInteractable
         isOpen = !isOpen;
         StartCoroutine(AnimateDoor(isOpen ? openRotation : closedRotation));
         
-        if (foodInside != null)
+        if (foodInside)
         {
             foodInside.SetActive(isOpen);
         }

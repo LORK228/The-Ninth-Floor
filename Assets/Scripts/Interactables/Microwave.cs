@@ -91,7 +91,7 @@ public class Microwave : BaseInteractable
             {
                 inventory.ClearHand();
                 
-                if (foodInsidePrefab != null && insidePoint != null)
+                if (foodInsidePrefab && insidePoint)
                 {
                     // 1. Создаем пустой пивот и делаем его дочерним к insidePoint
                     GameObject centerPivot = new GameObject("FoodCenterPivot");
@@ -136,7 +136,7 @@ public class Microwave : BaseInteractable
             {
                 inventory.GiveItem(heatedItemName, heatedItemPrefab, handPositionOffset, handRotationOffset);
                 
-                if (currentFoodInside != null)
+                if (currentFoodInside)
                 {
                     currentFoodInside.transform.DOKill();
                     Destroy(currentFoodInside);
@@ -161,7 +161,7 @@ public class Microwave : BaseInteractable
     {
         currentState = MicrowaveState.Heating;
         
-        if (currentFoodInside != null)
+        if (currentFoodInside)
         {
             currentFoodInside.transform.DORotate(new Vector3(0, 360, 0), 2f, RotateMode.FastBeyond360)
                 .SetRelative()
@@ -171,7 +171,7 @@ public class Microwave : BaseInteractable
 
         yield return new WaitForSeconds(heatTime);
         
-        if (currentFoodInside != null)
+        if (currentFoodInside)
         {
             currentFoodInside.transform.DOKill();
         }
