@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 using Zenject;
+using DG.Tweening;
 
 public class Microwave : BaseInteractable
 {
@@ -24,7 +25,6 @@ public class Microwave : BaseInteractable
     
     private GameObject currentFoodInside; 
 
-    // Зависим от ИНТЕРФЕЙСОВ
     private IPlayerInventory inventory;
     private ITaskManager taskManager;
 
@@ -93,7 +93,37 @@ public class Microwave : BaseInteractable
                 
                 if (foodInsidePrefab != null && insidePoint != null)
                 {
-                    currentFoodInside = Instantiate(foodInsidePrefab, insidePoint.position, insidePoint.rotation, insidePoint);
+                    // 1. Создаем пустой пивот и делаем его дочерним к insidePoint
+                    GameObject centerPivot = new GameObject("FoodCenterPivot");
+                    centerPivot.transform.SetParent(insidePoint, false);
+                    centerPivot.transform.position = insidePoint.position;
+                    centerPivot.transform.rotation = insidePoint.rotation;
+
+                    // 2. Спавним еду сразу как дочернюю к пивоту, чтобы она правильно унаследовала Scale
+                    GameObject actualFood = Instantiate(foodInsidePrefab, insidePoint.position, insidePoint.rotation, centerPivot.transform);
+                    
+                    // 3. Вычисляем геометрический центр еды
+                    Renderer[] renderers = actualFood.GetComponentsInChildren<Renderer>();
+                    if (renderers.Length > 0)
+                    {
+                        Bounds bounds = renderers[0].bounds;
+                        for (int i = 1; i < renderers.Length; i++)
+                        {
+                            bounds.Encapsulate(renderers[i].bounds);
+                        }
+                        
+                        // 4. Чтобы переместить пивот в центр, не сдвинув саму еду:
+                        // Временно отвязываем еду
+                        actualFood.transform.SetParent(insidePoint, true); 
+                        
+                        // Ставим пивот ровно в геометрический центр
+                        centerPivot.transform.position = bounds.center;
+                        
+                        // Привязываем еду обратно к пивоту
+                        actualFood.transform.SetParent(centerPivot.transform, true);
+                    }
+
+                    currentFoodInside = centerPivot;
                 }
 
                 StartCoroutine(HeatRoutine());
@@ -108,6 +138,7 @@ public class Microwave : BaseInteractable
                 
                 if (currentFoodInside != null)
                 {
+                    currentFoodInside.transform.DOKill();
                     Destroy(currentFoodInside);
                 }
 
@@ -129,7 +160,22 @@ public class Microwave : BaseInteractable
     private IEnumerator HeatRoutine()
     {
         currentState = MicrowaveState.Heating;
+        
+        if (currentFoodInside != null)
+        {
+            currentFoodInside.transform.DORotate(new Vector3(0, 360, 0), 2f, RotateMode.FastBeyond360)
+                .SetRelative()
+                .SetEase(Ease.Linear)
+                .SetLoops(-1);
+        }
+
         yield return new WaitForSeconds(heatTime);
+        
+        if (currentFoodInside != null)
+        {
+            currentFoodInside.transform.DOKill();
+        }
+
         currentState = MicrowaveState.Done;
     }
 
