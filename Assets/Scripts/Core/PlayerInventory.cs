@@ -1,10 +1,11 @@
 ﻿using UnityEngine;
 using UnityEngine.Rendering;
 using Zenject;
+using System.Collections.Generic;
 
 public class PlayerInventory : MonoBehaviour, IPlayerInventory
 {
-    [Header("Настройки")]
+    [Header("Настройки руки")]
     [Tooltip("Пустой объект дочерний к камере, где будут появляться предметы")]
     [SerializeField] private Transform handPoint;
 
@@ -14,13 +15,30 @@ public class PlayerInventory : MonoBehaviour, IPlayerInventory
     [Tooltip("Маска Rendering Layer (Light Layer) для предметов в руках. 2 = Light Layer 1 (HandItems)")]
     [SerializeField] private uint handItemRenderingLayer = 2;
 
+    [Header("UI Кармана (Опционально)")]
+    [Tooltip("Иконка или любой UI элемент, который покажет, что у нас есть предмет (например, ключ)")]
+    [SerializeField] private GameObject pocketUIIndicator;
+
     private GameObject currentItemObj;
     public string CurrentItemName { get; private set; }
+
+    // Хранилище для "карманов" (предметы без физической модели в руках)
+    private HashSet<string> pocketItems = new HashSet<string>();
 
     [Inject]
     public void Construct()
     {
     }
+
+    private void Start()
+    {
+        if (pocketUIIndicator != null)
+        {
+            pocketUIIndicator.SetActive(false);
+        }
+    }
+
+    // --- Логика руки ---
 
     public void GiveItem(string itemName, GameObject itemPrefab)
     {
@@ -64,7 +82,7 @@ public class PlayerInventory : MonoBehaviour, IPlayerInventory
             SetLayerRecursively(currentItemObj, portableLayerIndex);
         }
         
-        Debug.Log($"Игрок взял: {itemName}");
+        Debug.Log($"Игрок взял в руку: {itemName}");
     }
 
     private void SetLayerRecursively(GameObject obj, int newLayer)
@@ -85,8 +103,34 @@ public class PlayerInventory : MonoBehaviour, IPlayerInventory
         CurrentItemName = "";
     }
 
+    // --- Логика кармана ---
+
+    public void AddToPocket(string itemName)
+    {
+        pocketItems.Add(itemName);
+        Debug.Log($"Предмет добавлен в карман: {itemName}");
+
+        // Если это ключ, включаем иконку
+        if (itemName == "Ключ от квартиры" && pocketUIIndicator != null)
+        {
+            pocketUIIndicator.SetActive(true);
+        }
+    }
+
+    public bool HasItemInPocket(string itemName)
+    {
+        return pocketItems.Contains(itemName);
+    }
+
+    // --- Проверки ---
+
     public bool HasItem(string itemName)
     {
         return CurrentItemName == itemName;
+    }
+
+    public bool HasAnyItem(string itemName)
+    {
+        return HasItem(itemName) || HasItemInPocket(itemName);
     }
 }

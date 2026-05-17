@@ -23,6 +23,9 @@ public class TaskManager : MonoBehaviour, ITaskManager
         "Посмотреть в глазок (из-за скрежета)",
         "Разогреть еду",
         "Поставить еду за компьютер",
+        "Съесть еду за просмотром видео",
+        "Выключить компьютер",
+        "Отнести грязную тарелку в раковину",
         "Собрать мусор",
         "Выкинуть мусор на улицу",
         "Вернуться в квартиру",
@@ -39,18 +42,12 @@ public class TaskManager : MonoBehaviour, ITaskManager
 
     private void Awake()
     {
-        // Инициализируем стартовый индекс из настроек в инспекторе.
-        // Clamp гарантирует, что мы не выйдем за пределы списка, даже если введем число 100.
         currentTaskIndex = Mathf.Clamp(startTaskIndex, 0, allTasks.Count - 1);
     }
 
     private void Start()
     {
         UpdateUI();
-        
-        // Оповещаем всю игру о том, на каком мы сейчас этапе.
-        // Благодаря паттерну Observer, все нужные объекты (микроволновка и т.д.) 
-        // сами разблокируются, если текущий этап соответствует их требованиям.
         GameEventManager.TriggerTaskChanged(currentTaskIndex);
         
         if (currentTaskIndex > 0)
@@ -59,7 +56,6 @@ public class TaskManager : MonoBehaviour, ITaskManager
         }
     }
 
-    // ReSharper disable Unity.PerformanceAnalysis
     public void CompleteCurrentTask()
     {
         if (currentTaskIndex < allTasks.Count - 1)

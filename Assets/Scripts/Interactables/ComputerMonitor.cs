@@ -5,8 +5,10 @@ using Zenject;
 public class ComputerMonitor : BaseInteractable
 {
     [Header("Настройки")]
-    [SerializeField] private string prompt = "Включить видео";
-    [SerializeField] private int taskIndexRequired = 5; 
+    [SerializeField] private string turnOnPrompt = "Включить видео";
+    [SerializeField] private string turnOffPrompt = "Выключить компьютер";
+    [SerializeField] private int turnOnTaskIndexRequired = 5; 
+    [SerializeField] private int turnOffTaskIndexRequired = 6; 
     
     [SerializeField] private Chair playerChair;
     
@@ -17,8 +19,9 @@ public class ComputerMonitor : BaseInteractable
     private bool isPlaying = false;
     private bool isLocked = true;
 
-    // Зависим от ИНТЕРФЕЙСА
     private ITaskManager taskManager;
+
+    public bool IsVideoPlaying() => isPlaying;
 
     [Inject]
     public void Construct(ITaskManager taskManager)
@@ -26,7 +29,15 @@ public class ComputerMonitor : BaseInteractable
         this.taskManager = taskManager;
     }
 
-    public override string InteractionPrompt => isPlaying || isLocked ? "" : (playerChair != null && playerChair.IsOccupied()) ? prompt : "Нужно сесть за стол";
+    public override string InteractionPrompt 
+    {
+        get
+        {
+            if (isLocked) return "";
+            if (playerChair != null && !playerChair.IsOccupied()) return "Нужно сесть за стол";
+            return isPlaying ? turnOffPrompt : turnOnPrompt;
+        }
+    }
 
     protected override void Awake()
     {
@@ -54,33 +65,47 @@ public class ComputerMonitor : BaseInteractable
 
     private void HandleTaskChanged(int newTaskIndex)
     {
-        isLocked = (newTaskIndex < taskIndexRequired - 1);
+        // Разрешаем взаимодействие либо когда нужно включить (>= 4, чтобы позволить заранее), 
+        // либо когда нужно выключить (== 6). В данном случае строго разрешаем только для конкретных заданий.
+        isLocked = !(newTaskIndex == turnOnTaskIndexRequired || newTaskIndex == turnOffTaskIndexRequired);
     }
 
     public override bool Interact(GameObject interactor)
     {
-        if (isPlaying || isLocked) return false;
+        if (isLocked) return false;
 
         if (playerChair && playerChair.IsOccupied())
         {
-            if (videoPlayer)
+            if (!isPlaying && taskManager.GetCurrentTaskIndex() == turnOnTaskIndexRequired)
             {
-                if (videoScreenObject)
+                if (videoPlayer)
                 {
-                    videoScreenObject.SetActive(true);
+                    if (videoScreenObject) videoScreenObject.SetActive(true);
+                    videoPlayer.Play();
                 }
-                videoPlayer.Play();
+                
+                isPlaying = true;
+                OnHoverExit();
+                return true;
             }
-            
-            isPlaying = true;
-            OnHoverExit();
-
-            if (taskManager != null && taskManager.GetCurrentTaskIndex() == taskIndexRequired)
+            else if (isPlaying && taskManager.GetCurrentTaskIndex() == turnOffTaskIndexRequired)
             {
-                 // taskManager.CompleteCurrentTask();
+                if (videoPlayer)
+                {
+                    videoPlayer.Stop();
+                    if (videoScreenObject) videoScreenObject.SetActive(false);
+                }
+                
+                isPlaying = false;
+                OnHoverExit();
+                
+                if (taskManager != null)
+                {
+                    taskManager.CompleteCurrentTask();
+                }
+                
+                return true;
             }
-
-            return true;
         }
 
         return false;
@@ -88,7 +113,7 @@ public class ComputerMonitor : BaseInteractable
 
     public override void OnHoverEnter()
     {
-        if (isPlaying || isLocked) return;
+        if (isLocked) return;
         base.OnHoverEnter();
     }
 }

@@ -9,7 +9,13 @@ public class ComputerDesk : BaseInteractable
     [SerializeField] private int taskIndexRequired = 4; 
     
     [SerializeField] private GameObject foodOnDeskPrefab;
+    [Tooltip("Точка на столе (должна быть пустым объектом). Поверните этот объект, чтобы настроить поворот еды.")]
     [SerializeField] private Transform foodSpawnPoint;
+
+    [Header("Связи для еды")]
+    [Tooltip("Ссылки, которые будут переданы заспавненной еде")]
+    [SerializeField] private ComputerMonitor computerMonitor;
+    [SerializeField] private Chair chair;
 
     private bool hasFood = false;
     private bool isLocked = true;
@@ -17,12 +23,14 @@ public class ComputerDesk : BaseInteractable
     // Зависим от ИНТЕРФЕЙСОВ
     private IPlayerInventory inventory;
     private ITaskManager taskManager;
+    private DiContainer container; 
 
     [Inject]
-    public void Construct(IPlayerInventory inventory, ITaskManager taskManager)
+    public void Construct(IPlayerInventory inventory, ITaskManager taskManager, DiContainer container)
     {
         this.inventory = inventory;
         this.taskManager = taskManager;
+        this.container = container;
     }
 
     public override string InteractionPrompt => hasFood || isLocked ? "" : (inventory != null && inventory.HasItem(requiredItem)) ? prompt : "Нужна горячая еда";
@@ -56,7 +64,28 @@ public class ComputerDesk : BaseInteractable
             
             if (foodOnDeskPrefab && foodSpawnPoint)
             {
-                Instantiate(foodOnDeskPrefab, foodSpawnPoint.position, foodSpawnPoint.rotation);
+                // 1. Создаем еду через Zenject БЕЗ привязки к родителю
+                GameObject spawnedFood = container.InstantiatePrefab(foodOnDeskPrefab);
+
+                // 2. Делаем её дочерней, но false означает "не пытайся сохранить мировые координаты/скейл, 
+                // просто примени локальные нули". Это защищает от искажений скейла стола.
+                spawnedFood.transform.SetParent(foodSpawnPoint, false);
+                
+                // 3. Жестко сбрасываем локальные координаты в 0
+                // Теперь еда будет ровно в центре foodSpawnPoint, а её размер будет зависеть 
+                // только от размера самого префаба и масштаба foodSpawnPoint.
+                spawnedFood.transform.localPosition = Vector3.zero;
+                spawnedFood.transform.localRotation = Quaternion.identity;
+                
+                // Восстанавливаем оригинальный размер префаба
+                spawnedFood.transform.localScale = foodOnDeskPrefab.transform.localScale;
+
+                // Инициализируем еду ссылками на монитор и кресло
+                EatableFood eatableScript = spawnedFood.GetComponent<EatableFood>();
+                if (eatableScript != null)
+                {
+                    eatableScript.Initialize(computerMonitor, chair);
+                }
             }
 
             hasFood = true;
