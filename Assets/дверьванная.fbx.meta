@@ -8,7 +8,7 @@ ModelImporter:
       type: UnityEngine:Texture2D
       assembly: UnityEngine.CoreModule
       name: pixel-art-indexed (24)
-    second: {fileID: 2800000, guid: 780de80dc9a43d740af2d38089cd427d, type: 3}
+    second: {fileID: 2800000, guid: 92a3907a68822184997f4949874bacd9, type: 3}
   materials:
     materialImportMode: 2
     materialName: 0
