@@ -63,7 +63,7 @@ public class PostTrashEvent : MonoBehaviour
 
     private void Start()
     {
-        if (flickeringLight != null) flickeringLight.enabled = false;
+        if (flickeringLight != null) flickeringLight.enabled = true;
         if (monsterAnimator != null) monsterAnimator.gameObject.SetActive(false);
         
         if (hideTrigger != null) 
