@@ -4,11 +4,15 @@ using Zenject;
 public class PickupItem : BaseInteractable
 {
     [Header("Настройки предмета")]
-    [SerializeField] private string prompt = "Взять еду";
-    [SerializeField] private string itemName = "Холодная еда";
+    [SerializeField] private string prompt = "Взять";
+    [SerializeField] private string itemName = "Предмет";
     [SerializeField] private GameObject itemPrefabInHand; 
     
-    [SerializeField] private int requiredTaskIndex = 3; 
+    [Header("Настройки квеста")]
+    [Tooltip("Индекс квеста, на котором этот предмет можно взять. -1, если можно взять всегда.")]
+    [SerializeField] private int requiredTaskIndex = -1; 
+    [Tooltip("Завершить текущий квест при подборе этого предмета?")]
+    [SerializeField] private bool completeTaskOnPickup = false;
 
     [Header("Положение в руке")]
     [SerializeField] private Vector3 handPositionOffset = Vector3.zero;
@@ -35,6 +39,7 @@ public class PickupItem : BaseInteractable
         {
             GameEventManager.OnTaskChanged += HandleTaskChanged;
             
+            // Проверяем состояние сразу при включении
             if (taskManager != null)
             {
                 HandleTaskChanged(taskManager.GetCurrentTaskIndex());
@@ -62,6 +67,17 @@ public class PickupItem : BaseInteractable
         if (inventory != null)
         {
             inventory.GiveItem(itemName, itemPrefabInHand, handPositionOffset, handRotationOffset);
+
+            // Если нужно, завершаем текущий квест
+            if (completeTaskOnPickup && taskManager != null)
+            {
+                // Убедимся, что мы завершаем именно тот квест, на котором подобрали предмет
+                if (requiredTaskIndex == -1 || taskManager.GetCurrentTaskIndex() == requiredTaskIndex)
+                {
+                    taskManager.CompleteCurrentTask();
+                }
+            }
+
             Destroy(gameObject);
             return true;
         }

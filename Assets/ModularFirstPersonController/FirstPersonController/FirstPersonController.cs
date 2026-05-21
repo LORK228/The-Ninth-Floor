@@ -161,6 +161,10 @@ public class FirstPersonController : MonoBehaviour
 
     void Start()
     {
+        // ПРИМЕНЯЕМ НАСТРОЙКИ ЧУВСТВИТЕЛЬНОСТИ
+        // Умножаем на базовый множитель (например, 2f), чтобы 1.0 из настроек было равно стандартной чувствительности
+        mouseSensitivity = GameSettings.MouseSensitivity * 2f;
+
         if(lockCursor)
         {
             Cursor.lockState = CursorLockMode.Locked;
