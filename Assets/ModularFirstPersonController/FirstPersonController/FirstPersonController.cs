@@ -70,6 +70,13 @@ public class FirstPersonController : MonoBehaviour
     // Internal Variables
     private bool isWalking = false;
 
+    #region Step Offset
+    [Header("Stair Step-Up")]
+    public bool enableStepOffset = true;
+    public float stepHeight = 0.3f;
+    public float stepCheckDistance = 0.4f;
+    #endregion
+
     #region Sprint
 
     public bool enableSprint = true;
@@ -393,6 +400,11 @@ public class FirstPersonController : MonoBehaviour
 
         if (playerCanMove)
         {
+            if (enableStepOffset)
+            {
+                StepUp();
+            }
+
             // Calculate how fast we should be moving
             Vector3 targetVelocity = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
             targetVelocity = Vector3.ClampMagnitude(targetVelocity, 1f);
@@ -471,6 +483,25 @@ public class FirstPersonController : MonoBehaviour
         }
 
         #endregion
+    }
+
+    private void StepUp()
+    {
+        Vector3 moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical")).normalized;
+        if (moveDirection == Vector3.zero || !isGrounded) return;
+
+        // Луч из "коленей"
+        Vector3 rayStart = transform.position - new Vector3(0, transform.localScale.y / 2 - 0.1f, 0);
+        
+        if (Physics.Raycast(rayStart, transform.TransformDirection(moveDirection), out RaycastHit hit, stepCheckDistance))
+        {
+            // Проверяем, есть ли над ступенькой свободное место
+            if (!Physics.Raycast(rayStart + new Vector3(0, stepHeight, 0), transform.TransformDirection(moveDirection), stepCheckDistance))
+            {
+                // Поднимаем игрока
+                rb.position += new Vector3(0, stepHeight, 0);
+            }
+        }
     }
 
     // Sets isGrounded based on a raycast sent straigth down from the player object
@@ -759,6 +790,19 @@ public class FirstPersonController : MonoBehaviour
         fpc.speedReduction = EditorGUILayout.Slider(new GUIContent("Speed Reduction", "Determines the percent 'Walk Speed' is reduced by. 1 being no reduction, and .5 being half."), fpc.speedReduction, .1f, 1);
         GUI.enabled = true;
 
+        #endregion
+
+        #region Step Offset
+        EditorGUILayout.Space();
+        GUILayout.Label("Stair Step-Up", new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleLeft, fontStyle = FontStyle.Bold, fontSize = 13 }, GUILayout.ExpandWidth(true));
+
+        fpc.enableStepOffset = EditorGUILayout.ToggleLeft(new GUIContent("Enable Step Offset", "Allows the player to automatically step up small obstacles like stairs."), fpc.enableStepOffset);
+
+        GUI.enabled = fpc.enableStepOffset;
+        fpc.stepHeight = EditorGUILayout.Slider(new GUIContent("Step Height", "The maximum height the player can step up."), fpc.stepHeight, 0.1f, 1f);
+        fpc.stepCheckDistance = EditorGUILayout.Slider(new GUIContent("Step Check Distance", "How far in front of the player to check for steps."), fpc.stepCheckDistance, 0.1f, 1f);
+        GUI.enabled = true;
+        EditorGUILayout.Space();
         #endregion
 
         #endregion

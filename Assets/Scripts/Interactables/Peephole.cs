@@ -22,6 +22,10 @@ public class Peephole : BaseInteractable
     // Кэшируем контроллер для оптимизации
     private FirstPersonController fpc;
     
+    // Сохраняем предыдущее состояние прыжка и приседа, чтобы вернуть как было, а не просто включать
+    private bool previousJumpState = false;
+    private bool previousCrouchState = false;
+    
     private Vector3 coverClosedPosition;
     private float currentCoverDistance = 0f;
 
@@ -117,6 +121,10 @@ public class Peephole : BaseInteractable
 
         isLooking = true;
 
+        // Сохраняем исходное состояние
+        previousJumpState = fpc.enableJump;
+        previousCrouchState = fpc.enableCrouch;
+
         fpc.playerCanMove = false;
         fpc.cameraCanMove = false;
         fpc.enableJump = false;
@@ -144,11 +152,12 @@ public class Peephole : BaseInteractable
         {
             fpc.playerCanMove = true;
             fpc.cameraCanMove = true;
-            fpc.enableJump = true;
-            fpc.enableCrouch = true;
+            
+            // Восстанавливаем исходное состояние вместо безусловного включения
+            fpc.enableJump = previousJumpState;
+            fpc.enableCrouch = previousCrouchState;
             
             fpc.playerCamera.gameObject.SetActive(true);
-            // Не обнуляем fpc, чтобы использовать кэш в следующий раз
         }
 
         if (peepholeCamera)
