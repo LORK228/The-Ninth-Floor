@@ -254,7 +254,8 @@ MonoBehaviour:
   dirtyPlatePrefab: {fileID: 4235782202235372935, guid: bd6e57e5c263a574896904e619700733, type: 3}
   bitesTotal: 3
   chewCooldown: 5
-  audioSource: {fileID: 0}
+  audioSource: {fileID: 553117464539471713}
+  eatingSound: {fileID: 8300000, guid: a47cad1eda5991b4f94b3c420a31b501, type: 3}
 --- !u!82 &553117464539471713
 AudioSource:
   m_ObjectHideFlags: 0

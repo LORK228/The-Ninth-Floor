@@ -16,6 +16,11 @@ public class SimpleDoor : BaseInteractable
     
     [SerializeField] private float rotationSpeed = 5f;
 
+    [Header("Звуки")]
+    [SerializeField] private AudioSource doorAudioSource;
+    [SerializeField] private AudioClip openSound;
+    [SerializeField] private AudioClip closeSound;
+
     private bool isOpen = false;
     private bool isAnimating = false;
 
@@ -39,6 +44,11 @@ public class SimpleDoor : BaseInteractable
             closedRotation = transform.localRotation;
             openRotation = closedRotation * Quaternion.AngleAxis(openAngle, rotationAxis.normalized);
         }
+
+        if (doorAudioSource == null)
+        {
+            doorAudioSource = GetComponent<AudioSource>();
+        }
     }
 
     public override bool Interact(GameObject interactor)
@@ -46,6 +56,19 @@ public class SimpleDoor : BaseInteractable
         if (isAnimating) return false;
 
         isOpen = !isOpen;
+
+        if (doorAudioSource != null)
+        {
+            if (isOpen && openSound != null)
+            {
+                doorAudioSource.PlayOneShot(openSound);
+            }
+            else if (!isOpen && closeSound != null)
+            {
+                doorAudioSource.PlayOneShot(closeSound);
+            }
+        }
+
         StartCoroutine(AnimateDoor(isOpen ? openRotation : closedRotation));
         
         return true; 

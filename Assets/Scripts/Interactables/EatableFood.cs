@@ -22,6 +22,7 @@ public class EatableFood : BaseInteractable
 
     [Header("Аудио")]
     [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip eatingSound;
     
     private int currentBites = 0;
     private bool isChewing = false;
@@ -105,9 +106,15 @@ public class EatableFood : BaseInteractable
         isChewing = true;
         currentBites++;
         
-        if (audioSource != null)
+        if (audioSource != null && eatingSound != null)
         {
-            audioSource.Play();
+            // Если звук еще не играет, запускаем его зацикленно
+            if (!audioSource.isPlaying)
+            {
+                audioSource.clip = eatingSound;
+                audioSource.loop = true;
+                audioSource.Play();
+            }
         }
 
         if (foodPieces != null && currentBites - 1 < foodPieces.Length)
@@ -122,21 +129,21 @@ public class EatableFood : BaseInteractable
         {
             OnHoverExit();
             
+            if (audioSource != null)
+            {
+                audioSource.Stop();
+                audioSource.loop = false;
+            }
+            
             if (taskManager != null)
             {
                 taskManager.CompleteCurrentTask();
             }
             
-            // Спавним грязную тарелку
             if (dirtyPlatePrefab != null && container != null)
             {
-                // Спавним без родителя, чтобы избежать искажений
                 GameObject plate = container.InstantiatePrefab(dirtyPlatePrefab);
-                
-                // Делаем дочерней к тому же объекту (столу/foodSpawnPoint), что и еда
                 plate.transform.SetParent(transform.parent, false);
-                
-                // Копируем точную локальную позицию и поворот съеденной еды
                 plate.transform.localPosition = transform.localPosition;
                 plate.transform.localRotation = transform.localRotation;
             }

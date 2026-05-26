@@ -17,6 +17,19 @@ public class PostTrashEvent : MonoBehaviour
     [Tooltip("Точка, на которую будет смотреть игрок во время скримера")]
     [SerializeField] private Transform lookAtTarget;
 
+    [Header("Звуки")]
+    [SerializeField] private AudioSource eventAudioSource; // Общий источник звуков для этого события
+    [SerializeField] private AudioClip pianoSound; // Пианинка сразу после выброса мусора
+    [SerializeField] private AudioClip ambientDroneSound; // Тревожный гул
+    [SerializeField] private AudioClip monsterFootstepsSound; // Звук шагов монстра (снизу)
+    [SerializeField] private AudioClip jumpscareSound; // Звук убийства
+    
+    [Header("Дополнительные звуковые триггеры")]
+    [Tooltip("Триггер для включения шагов монстра снизу")]
+    [SerializeField] private Collider footstepsTrigger;
+    [Tooltip("Триггер для шагов монстра БЛИЖЕ (при открытии двери)")]
+    [SerializeField] private Collider closeFootstepsTrigger;
+
     [Header("Настройки анимаций")]
     [SerializeField] private string idleAnimationName = "Idle";
     [SerializeField] private string hideAnimationName = "Hide";
@@ -76,6 +89,16 @@ public class PostTrashEvent : MonoBehaviour
             jumpscareTrigger.enabled = false;
             SetupTriggerRelay(jumpscareTrigger, "Jumpscare");
         }
+        if (footstepsTrigger != null)
+        {
+            footstepsTrigger.enabled = false;
+            SetupTriggerRelay(footstepsTrigger, "Footsteps");
+        }
+        if (closeFootstepsTrigger != null)
+        {
+            closeFootstepsTrigger.enabled = false;
+            SetupTriggerRelay(closeFootstepsTrigger, "CloseFootsteps");
+        }
     }
 
     private void SetupTriggerRelay(Collider col, string triggerType)
@@ -98,6 +121,19 @@ public class PostTrashEvent : MonoBehaviour
     private void TriggerEvent()
     {
         eventTriggered = true;
+        
+        // 1. Пианинка + Гул
+        if (eventAudioSource != null)
+        {
+            if (pianoSound != null) eventAudioSource.PlayOneShot(pianoSound);
+            if (ambientDroneSound != null)
+            {
+                eventAudioSource.clip = ambientDroneSound;
+                eventAudioSource.loop = true;
+                eventAudioSource.Play();
+            }
+        }
+
         if (flickeringLight != null)
         {
             flickeringLight.enabled = true;
@@ -115,6 +151,8 @@ public class PostTrashEvent : MonoBehaviour
 
         if (hideTrigger != null) hideTrigger.enabled = true;
         if (jumpscareTrigger != null) jumpscareTrigger.enabled = true;
+        if (footstepsTrigger != null) footstepsTrigger.enabled = true;
+        if (closeFootstepsTrigger != null) closeFootstepsTrigger.enabled = true;
     }
 
     private IEnumerator FlickerCoroutine()
@@ -144,6 +182,28 @@ public class PostTrashEvent : MonoBehaviour
             jumpscareInProgress = true;
             StartCoroutine(JumpscareSequence(other.gameObject));
         }
+        else if (triggerType == "Footsteps")
+        {
+            // Играем шаги монстра (снизу)
+            if (eventAudioSource != null && monsterFootstepsSound != null)
+            {
+                // Настраиваем AudioSource на 3D звук, чтобы было понятно откуда он
+                eventAudioSource.spatialBlend = 1f;
+                // Идеально было бы, если бы этот AudioSource стоял на этаж ниже
+                eventAudioSource.PlayOneShot(monsterFootstepsSound);
+            }
+            if (footstepsTrigger != null) footstepsTrigger.enabled = false;
+        }
+        else if (triggerType == "CloseFootsteps")
+        {
+            // Играем шаги монстра еще раз, но громче
+            if (eventAudioSource != null && monsterFootstepsSound != null)
+            {
+                eventAudioSource.spatialBlend = 0f; // 2D звук кажется ближе и громче
+                eventAudioSource.PlayOneShot(monsterFootstepsSound);
+            }
+            if (closeFootstepsTrigger != null) closeFootstepsTrigger.enabled = false;
+        }
     }
 
     private IEnumerator JumpscareSequence(GameObject player)
@@ -164,13 +224,17 @@ public class PostTrashEvent : MonoBehaviour
 
         if (monsterAnimator != null)
         {
-            // ПРИНУДИТЕЛЬНО ОТКЛЮЧАЕМ ROOT MOTION ИЗ СКРИПТА
             monsterAnimator.applyRootMotion = false; 
             
             if (!string.IsNullOrEmpty(jumpscareAnimationName))
             {
                 monsterAnimator.Play(jumpscareAnimationName); 
             }
+        }
+
+        if (eventAudioSource != null && jumpscareSound != null)
+        {
+            eventAudioSource.PlayOneShot(jumpscareSound);
         }
 
         Transform monsterTransform = monsterAnimator != null ? monsterAnimator.transform : null;

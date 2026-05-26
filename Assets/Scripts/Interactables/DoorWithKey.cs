@@ -18,6 +18,12 @@ public class DoorWithKey : BaseInteractable
     [SerializeField] private Vector3 rotationAxis = Vector3.up;
     [SerializeField] private float rotationSpeed = 5f;
 
+    [Header("Звуки")]
+    [SerializeField] private AudioSource doorAudioSource;
+    [SerializeField] private AudioClip openSound;
+    [SerializeField] private AudioClip closeSound;
+    [SerializeField] private AudioClip lockedSound;
+
     private bool isOpen = false;
     private bool isAnimating = false;
 
@@ -60,6 +66,11 @@ public class DoorWithKey : BaseInteractable
             closedRotation = transform.localRotation;
             openRotation = closedRotation * Quaternion.AngleAxis(openAngle, rotationAxis.normalized);
         }
+
+        if (doorAudioSource == null)
+        {
+            doorAudioSource = GetComponent<AudioSource>();
+        }
     }
 
     public override bool Interact(GameObject interactor)
@@ -70,10 +81,27 @@ public class DoorWithKey : BaseInteractable
         if (inventory == null || !inventory.HasAnyItem(keyName))
         {
             Debug.Log("Дверь заперта. Нужен ключ.");
+            if (doorAudioSource != null && lockedSound != null)
+            {
+                doorAudioSource.PlayOneShot(lockedSound);
+            }
             return false;
         }
 
         isOpen = !isOpen;
+
+        if (doorAudioSource != null)
+        {
+            if (isOpen && openSound != null)
+            {
+                doorAudioSource.PlayOneShot(openSound);
+            }
+            else if (!isOpen && closeSound != null)
+            {
+                doorAudioSource.PlayOneShot(closeSound);
+            }
+        }
+
         StartCoroutine(AnimateDoor(isOpen ? openRotation : closedRotation));
         
         return true; 

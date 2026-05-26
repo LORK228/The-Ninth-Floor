@@ -19,6 +19,11 @@ public class ApartmentDoor : BaseInteractable
     [Header("Квест 'Вернуться в квартиру'")]
     [SerializeField] private int returnTaskIndex = 10; 
 
+    [Header("Звуки")]
+    [SerializeField] private AudioSource doorAudioSource;
+    [SerializeField] private AudioClip openSound;
+    [SerializeField] private AudioClip closeSound;
+
     private bool isOpen = false;
     private bool isAnimating = false;
 
@@ -50,6 +55,11 @@ public class ApartmentDoor : BaseInteractable
             closedRotation = transform.localRotation;
             openRotation = closedRotation * Quaternion.AngleAxis(openAngle, rotationAxis.normalized);
         }
+
+        if (doorAudioSource == null)
+        {
+            doorAudioSource = GetComponent<AudioSource>();
+        }
     }
 
     public override bool Interact(GameObject interactor)
@@ -57,6 +67,19 @@ public class ApartmentDoor : BaseInteractable
         if (isAnimating) return false;
 
         isOpen = !isOpen;
+
+        if (doorAudioSource != null)
+        {
+            if (isOpen && openSound != null)
+            {
+                doorAudioSource.PlayOneShot(openSound);
+            }
+            else if (!isOpen && closeSound != null)
+            {
+                doorAudioSource.PlayOneShot(closeSound);
+            }
+        }
+
         StartCoroutine(AnimateDoor(isOpen ? openRotation : closedRotation));
         
         // Проверяем, выполняет ли это закрытие двери квест "Вернуться в квартиру"

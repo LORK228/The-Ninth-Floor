@@ -15,6 +15,10 @@ public class WashingMachine : BaseInteractable
     [SerializeField] private Vector3 handPositionOffset = Vector3.zero;
     [SerializeField] private Vector3 handRotationOffset = Vector3.zero;
 
+    [Header("Звуки")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip takeClothesSound;
+
     private bool isEmptied = false;
     private bool isLocked = true; 
 
@@ -30,6 +34,15 @@ public class WashingMachine : BaseInteractable
     }
 
     public override string InteractionPrompt => isEmptied || isLocked ? "" : prompt;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        if (audioSource == null)
+        {
+            audioSource = GetComponent<AudioSource>();
+        }
+    }
 
     private void OnEnable()
     {
@@ -67,6 +80,11 @@ public class WashingMachine : BaseInteractable
             isEmptied = true;
             isLocked = true;
             OnHoverExit(); 
+
+            if (audioSource != null && takeClothesSound != null)
+            {
+                audioSource.PlayOneShot(takeClothesSound);
+            }
             
             return true;
         }

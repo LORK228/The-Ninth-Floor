@@ -19,6 +19,12 @@ public class Microwave : BaseInteractable
     [Header("Положение в руке (готовая еда)")]
     [SerializeField] private Vector3 handPositionOffset = Vector3.zero;
     [SerializeField] private Vector3 handRotationOffset = Vector3.zero;
+
+    [Header("Звуки")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip startSound;
+    [SerializeField] private AudioClip workingLoopSound;
+    [SerializeField] private AudioClip doneSound;
     
     public enum MicrowaveState { Idle, Heating, Done, Locked }
     private MicrowaveState currentState = MicrowaveState.Locked;
@@ -52,6 +58,15 @@ public class Microwave : BaseInteractable
                 default:
                     return "";
             }
+        }
+    }
+
+    protected override void Awake()
+    {
+        base.Awake();
+        if (audioSource == null)
+        {
+            audioSource = GetComponent<AudioSource>();
         }
     }
 
@@ -93,16 +108,13 @@ public class Microwave : BaseInteractable
                 
                 if (foodInsidePrefab && insidePoint)
                 {
-                    // 1. Создаем пустой пивот и делаем его дочерним к insidePoint
                     GameObject centerPivot = new GameObject("FoodCenterPivot");
                     centerPivot.transform.SetParent(insidePoint, false);
                     centerPivot.transform.position = insidePoint.position;
                     centerPivot.transform.rotation = insidePoint.rotation;
 
-                    // 2. Спавним еду сразу как дочернюю к пивоту, чтобы она правильно унаследовала Scale
                     GameObject actualFood = Instantiate(foodInsidePrefab, insidePoint.position, insidePoint.rotation, centerPivot.transform);
                     
-                    // 3. Вычисляем геометрический центр еды
                     Renderer[] renderers = actualFood.GetComponentsInChildren<Renderer>();
                     if (renderers.Length > 0)
                     {
@@ -112,14 +124,8 @@ public class Microwave : BaseInteractable
                             bounds.Encapsulate(renderers[i].bounds);
                         }
                         
-                        // 4. Чтобы переместить пивот в центр, не сдвинув саму еду:
-                        // Временно отвязываем еду
                         actualFood.transform.SetParent(insidePoint, true); 
-                        
-                        // Ставим пивот ровно в геометрический центр
                         centerPivot.transform.position = bounds.center;
-                        
-                        // Привязываем еду обратно к пивоту
                         actualFood.transform.SetParent(centerPivot.transform, true);
                     }
 
@@ -161,6 +167,19 @@ public class Microwave : BaseInteractable
     {
         currentState = MicrowaveState.Heating;
         
+        if (audioSource != null)
+        {
+            if (startSound != null) audioSource.PlayOneShot(startSound);
+            yield return new WaitForSeconds(startSound != null ? startSound.length : 0.5f);
+            
+            if (workingLoopSound != null)
+            {
+                audioSource.clip = workingLoopSound;
+                audioSource.loop = true;
+                audioSource.Play();
+            }
+        }
+        
         if (currentFoodInside)
         {
             currentFoodInside.transform.DORotate(new Vector3(0, 360, 0), 2f, RotateMode.FastBeyond360)
@@ -174,6 +193,16 @@ public class Microwave : BaseInteractable
         if (currentFoodInside)
         {
             currentFoodInside.transform.DOKill();
+        }
+
+        if (audioSource != null)
+        {
+            audioSource.Stop();
+            audioSource.loop = false;
+            if (doneSound != null)
+            {
+                audioSource.PlayOneShot(doneSound);
+            }
         }
 
         currentState = MicrowaveState.Done;

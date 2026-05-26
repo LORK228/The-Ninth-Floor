@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using Zenject;
+using System.Collections;
 
 public class Chair : BaseInteractable
 {
@@ -6,6 +8,11 @@ public class Chair : BaseInteractable
     [SerializeField] private string prompt = "Сесть";
     [SerializeField] private Transform sitPoint; 
     [SerializeField] private KeyCode standUpKey = KeyCode.Space;
+    
+    [Header("Начало игры")]
+    [Tooltip("Если включено, игрок заспавнится в этом кресле, если стартовый квест совпадает с Start Task Index")]
+    [SerializeField] private bool spawnPlayerHereOnStart = true;
+    [SerializeField] private int startTaskIndex = 0;
     
     private bool isOccupied = false;
     private GameObject currentPlayerObj;
@@ -20,9 +27,34 @@ public class Chair : BaseInteractable
     private bool wasEnableCrouch;
     private bool wasEnableHeadBob;
     
+    private ITaskManager taskManager;
+
+    [Inject]
+    public void Construct(ITaskManager taskManager)
+    {
+        this.taskManager = taskManager;
+    }
+
     public override string InteractionPrompt => prompt;
 
     public bool IsOccupied() => isOccupied;
+
+    private IEnumerator Start()
+    {
+        // Ждем один кадр, чтобы все остальные скрипты (включая игрока) успели проинициализироваться
+        yield return null;
+
+        if (spawnPlayerHereOnStart && taskManager != null && taskManager.GetCurrentTaskIndex() == startTaskIndex)
+        {
+            // Ищем игрока на сцене (так как у нас нет прямой ссылки)
+            FirstPersonController playerController = FindObjectOfType<FirstPersonController>();
+            if (playerController != null)
+            {
+                // Сажаем игрока принудительно, но без сохранения позиции возврата (так как он только заспавнился)
+                ForceSitDown(playerController.gameObject);
+            }
+        }
+    }
 
     private void Update()
     {
@@ -52,8 +84,30 @@ public class Chair : BaseInteractable
         if (!fpc) return;
         
         currentPlayerObj = fpc.gameObject;
-        standPosition = currentPlayerObj.transform.position;
+        standPosition = currentPlayerObj.transform.position; // Запоминаем, откуда пришли
         
+        ApplySittingState();
+    }
+
+    private void ForceSitDown(GameObject interactor)
+    {
+        if (!fpc)
+        {
+            fpc = interactor.GetComponent<FirstPersonController>();
+            if (!fpc) fpc = interactor.GetComponentInParent<FirstPersonController>();
+        }
+        
+        if (!fpc) return;
+        
+        currentPlayerObj = fpc.gameObject;
+        // Если мы спавнимся в кресле, то точкой возврата делаем позицию немного спереди от кресла
+        standPosition = transform.position + transform.forward * 1.5f;
+        
+        ApplySittingState();
+    }
+
+    private void ApplySittingState()
+    {
         wasPlayerCanMove = fpc.playerCanMove;
         wasEnableJump = fpc.enableJump;
         wasEnableCrouch = fpc.enableCrouch;
@@ -76,6 +130,8 @@ public class Chair : BaseInteractable
         if (sitPoint)
         {
             currentPlayerObj.transform.position = sitPoint.position;
+            // Также поворачиваем игрока туда же, куда смотрит sitPoint
+            currentPlayerObj.transform.rotation = sitPoint.rotation;
         }
         else
         {
@@ -109,7 +165,6 @@ public class Chair : BaseInteractable
         
         isOccupied = false;
         currentPlayerObj = null;
-        // Не обнуляем fpc, чтобы использовать закэшированное значение в следующий раз
     }
 
     public override void OnHoverEnter()

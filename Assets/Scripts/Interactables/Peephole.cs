@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using Zenject;
+using System.Collections;
 
 public class Peephole : BaseInteractable
 {
@@ -16,13 +17,21 @@ public class Peephole : BaseInteractable
     [SerializeField] private float maxCoverDistance = 0.1f;
     [SerializeField] private float coverOpenSensitivity = 0.01f;
 
+    [Header("Событие с монстром")]
+    [Tooltip("Объект монстра (голова), который появится")]
+    [SerializeField] private GameObject peepholeMonster;
+    [Tooltip("Сколько секунд нужно смотреть, чтобы монстр появился")]
+    [SerializeField] private float timeToWait = 10f;
+    [Tooltip("Сколько секунд монстр будет виден")]
+    [SerializeField] private float monsterVisibleDuration = 1.5f;
+
     private bool isLooking = false;
     private bool isLocked = true;
+    private bool eventTriggered = false;
+    private float lookTimer = 0f;
     
-    // Кэшируем контроллер для оптимизации
     private FirstPersonController fpc;
     
-    // Сохраняем предыдущее состояние прыжка и приседа, чтобы вернуть как было, а не просто включать
     private bool previousJumpState = false;
     private bool previousCrouchState = false;
     
@@ -52,6 +61,11 @@ public class Peephole : BaseInteractable
         {
             coverClosedPosition = cover.localPosition;
             cover.gameObject.SetActive(false);
+        }
+
+        if (peepholeMonster != null)
+        {
+            peepholeMonster.SetActive(false);
         }
     }
 
@@ -90,6 +104,20 @@ public class Peephole : BaseInteractable
                 }
             }
 
+            // Таймер события с монстром
+            if (!eventTriggered && currentCoverDistance >= maxCoverDistance * 0.5f) // Если крышка открыта хотя бы наполовину
+            {
+                lookTimer += Time.deltaTime;
+                if (lookTimer >= timeToWait)
+                {
+                    StartCoroutine(MonsterEventRoutine());
+                }
+            }
+            else if (currentCoverDistance < maxCoverDistance * 0.5f)
+            {
+                lookTimer = 0f; // Сбрасываем таймер, если игрок прикрыл глазок
+            }
+
             if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Mouse0))
             {
                 if (currentCoverDistance > 0.01f || Input.GetKeyDown(KeyCode.Escape)) 
@@ -97,6 +125,23 @@ public class Peephole : BaseInteractable
                     StopLooking();
                 }
             }
+        }
+    }
+
+    private IEnumerator MonsterEventRoutine()
+    {
+        eventTriggered = true;
+
+        if (peepholeMonster != null)
+        {
+            // Показываем монстра
+            peepholeMonster.SetActive(true);
+            
+            // Ждем
+            yield return new WaitForSeconds(monsterVisibleDuration);
+            
+            // Убираем монстра
+            peepholeMonster.SetActive(false);
         }
     }
 
@@ -110,7 +155,6 @@ public class Peephole : BaseInteractable
 
     private void StartLooking(GameObject interactor)
     {
-        // ОПТИМИЗАЦИЯ: Ищем компонент только один раз
         if (!fpc)
         {
             fpc = interactor.GetComponent<FirstPersonController>();
@@ -120,8 +164,8 @@ public class Peephole : BaseInteractable
         if (!fpc) return;
 
         isLooking = true;
+        lookTimer = 0f; // Сброс таймера при новом взгляде
 
-        // Сохраняем исходное состояние
         previousJumpState = fpc.enableJump;
         previousCrouchState = fpc.enableCrouch;
 
@@ -147,13 +191,13 @@ public class Peephole : BaseInteractable
     private void StopLooking()
     {
         isLooking = false;
+        lookTimer = 0f;
 
         if (fpc)
         {
             fpc.playerCanMove = true;
             fpc.cameraCanMove = true;
             
-            // Восстанавливаем исходное состояние вместо безусловного включения
             fpc.enableJump = previousJumpState;
             fpc.enableCrouch = previousCrouchState;
             

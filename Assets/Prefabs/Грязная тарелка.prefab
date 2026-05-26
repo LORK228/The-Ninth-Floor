@@ -182,8 +182,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PickupItem
   prompt: "\u0412\u0437\u044F\u0442\u044C \u0435\u0434\u0443"
   itemName: "\u0413\u0440\u044F\u0437\u043D\u0430\u044F \u0442\u0430\u0440\u0435\u043B\u043A\u0430"
-  itemPrefabInHand: {fileID: 5779134008371063310, guid: b072a6ce565089e4b8f56118859087cb, type: 3}
+  itemPrefabInHand: {fileID: 8600199745764379463, guid: 4893b11fda45ad94f8083a6115b5cd95, type: 3}
   requiredTaskIndex: -1
+  completeTaskOnPickup: 0
   handPositionOffset: {x: 0, y: 0, z: 0}
   handRotationOffset: {x: 0, y: 0, z: 0}
 --- !u!1 &8861529366735363469

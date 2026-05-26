@@ -10,6 +10,10 @@ public class ClothesDryer : BaseInteractable
 
     [SerializeField] private GameObject[] clothesPieces;
 
+    [Header("Звуки")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip hangClothSound;
+
     private int currentClicks = 0;
     private bool isDone = false;
 
@@ -29,6 +33,11 @@ public class ClothesDryer : BaseInteractable
     protected override void Awake()
     {
         base.Awake();
+
+        if (audioSource == null)
+        {
+            audioSource = GetComponent<AudioSource>();
+        }
 
         if (clothesPieces == null || clothesPieces.Length == 0)
         {
@@ -68,6 +77,11 @@ public class ClothesDryer : BaseInteractable
                 {
                     clothesPieces[currentClicks - 1].SetActive(true);
                 }
+            }
+
+            if (audioSource != null && hangClothSound != null)
+            {
+                audioSource.PlayOneShot(hangClothSound);
             }
 
             if (currentClicks >= clicksRequired)
