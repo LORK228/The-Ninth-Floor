@@ -36,6 +36,8 @@ public class HoldToInteractDoor : BaseInteractable
     [SerializeField] private AudioClip closeFootstepSound;
     [Tooltip("Звук сердцебиения (квест 13)")]
     [SerializeField] private AudioClip heartbeatSound;
+    [Tooltip("Звук скрежета (для внешних событий)")]
+    [SerializeField] public AudioClip scrapeSound;
     
     [Header("Настройки сердцебиения")]
     [Tooltip("Через сколько секунд после закрытия двери сердцебиение прекратится")]
@@ -112,7 +114,6 @@ public class HoldToInteractDoor : BaseInteractable
         {
             if (currentHoldTime == 0 && !isOpen && taskManager != null && taskManager.GetCurrentTaskIndex() == 13)
             {
-                // Начинаем открывать на 13 квесте - играем близкие шаги
                 if (doorAudioSource != null && closeFootstepSound != null)
                 {
                     doorAudioSource.PlayOneShot(closeFootstepSound);
@@ -172,6 +173,14 @@ public class HoldToInteractDoor : BaseInteractable
         StartCoroutine(AnimateDoor(isOpen ? openRotation : closedRotation));
 
         CheckTaskCompletion();
+    }
+    
+    public void PlayScrapeSound()
+    {
+        if (doorAudioSource != null && scrapeSound != null)
+        {
+            doorAudioSource.PlayOneShot(scrapeSound);
+        }
     }
     
     private IEnumerator StopHeartbeatRoutine()

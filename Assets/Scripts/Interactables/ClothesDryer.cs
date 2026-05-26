@@ -14,6 +14,10 @@ public class ClothesDryer : BaseInteractable
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip hangClothSound;
 
+    [Header("Событие скрежета")]
+    [Tooltip("Дверь, которая должна издать звук скрежета")]
+    [SerializeField] private HoldToInteractDoor mainDoor;
+
     private int currentClicks = 0;
     private bool isDone = false;
 
@@ -94,7 +98,6 @@ public class ClothesDryer : BaseInteractable
         return false;
     }
 
-    // ReSharper disable Unity.PerformanceAnalysis
     private void FinishHanging()
     {
         isDone = true;
@@ -103,6 +106,12 @@ public class ClothesDryer : BaseInteractable
         if (inventory != null)
         {
             inventory.ClearHand();
+        }
+
+        // Вызываем звук скрежета на двери
+        if (mainDoor != null)
+        {
+            mainDoor.PlayScrapeSound();
         }
 
         if (taskManager != null)
