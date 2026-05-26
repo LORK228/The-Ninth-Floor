@@ -1616,7 +1616,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TaskManager
   taskText: {fileID: 805989027}
   prefix: '- '
-  startTaskIndex: 0
+  startTaskIndex: 17
   allTasks:
   - "\u0412\u044B\u043A\u043B\u044E\u0447\u0438\u0442\u044C \u0431\u0443\u0434\u0438\u043B\u044C\u043D\u0438\u043A"
   - "\u0420\u0430\u0437\u0432\u0435\u0441\u0438\u0442\u044C \u0431\u0435\u043B\u044C\u0435
@@ -1636,8 +1636,7 @@ MonoBehaviour:
     \u0434\u0432\u0435\u0440\u044C"
   - "\u0417\u0430\u043A\u0440\u044B\u0442\u044C \u0432\u0445\u043E\u0434\u043D\u0443\u044E
     \u0434\u0432\u0435\u0440\u044C"
-  - "\u0412\u044B\u043A\u0438\u043D\u0443\u0442\u044C \u043C\u0443\u0441\u043E\u0440
-    \u043D\u0430 \u0443\u043B\u0438\u0446\u0443"
+  - "\u0412\u044B\u043A\u0438\u043D\u0443\u0442\u044C \u043C\u0443\u0441\u043E\u0440 "
   - "\u0412\u0435\u0440\u043D\u0443\u0442\u044C\u0441\u044F \u0432 \u043A\u0432\u0430\u0440\u0442\u0438\u0440\u0443"
   - "\u041E\u0442\u043A\u0440\u044B\u0442\u044C \u0432\u0445\u043E\u0434\u043D\u0443\u044E
     \u0434\u0432\u0435\u0440\u044C"
@@ -1645,7 +1644,7 @@ MonoBehaviour:
     \u0434\u0432\u0435\u0440\u044C"
   - "\u041F\u043E\u043C\u044B\u0442\u044C \u043F\u043E\u0441\u0443\u0434\u0443"
   - "\u041F\u043E\u043B\u0438\u0442\u044C \u0446\u0432\u0435\u0442\u043E\u043A"
-  - "\u041B\u0435\u0447\u044C \u0441\u043F\u0430\u0442\u044C"
+  - "\u043B\u0435\u0447\u044C \u0441\u043F\u0430\u0442\u044C \u0438\u043B\u0438 \u0431\u0435\u0436\u0430\u0442\u044C?"
 --- !u!4 &257992634
 Transform:
   m_ObjectHideFlags: 0
@@ -2038,7 +2037,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.105
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -4041,7 +4040,7 @@ MonoBehaviour:
   m_RequiresOpaqueTextureOption: 2
   m_CameraType: 0
   m_Cameras: []
-  m_RendererIndex: -1
+  m_RendererIndex: 1
   m_VolumeLayerMask:
     serializedVersion: 2
     m_Bits: 1
@@ -5147,7 +5146,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.124
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -5252,9 +5251,9 @@ MonoBehaviour:
   wateringDuration: 3
   monsterLookDuration: 3
   audioSource: {fileID: 901354006}
-  wateringSound: {fileID: 8300000, guid: a9885bf84bc4c264abb4cfd45e4df912, type: 3}
+  wateringSound: {fileID: 8300000, guid: 9d43c40b23007704e91410bc6d2957b2, type: 3}
   tensionSound: {fileID: 8300000, guid: a36d1a979e7468a4781e12c816024690, type: 3}
-  quietHeartbeatSound: {fileID: 8300000, guid: bb358936fc453f9469d7edef1ada02e3, type: 3}
+  quietHeartbeatSound: {fileID: 8300000, guid: f299fc11e6f86d447949bf6afbee6f65, type: 3}
 --- !u!65 &901354008
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6705,7 +6704,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.05
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -7415,35 +7414,67 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: fd1c04f23384a524f8f990572f112412, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.7071068
+      value: 0.5912868
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: fd1c04f23384a524f8f990572f112412, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0.046146017
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: fd1c04f23384a524f8f990572f112412, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.7071068
+      value: 0.804353
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: fd1c04f23384a524f8f990572f112412, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: 0.03559279
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: fd1c04f23384a524f8f990572f112412, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
+      value: -6.421
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: fd1c04f23384a524f8f990572f112412, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 90
+      value: 107.464
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: fd1c04f23384a524f8f990572f112412, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
+      value: -1.854
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: fd1c04f23384a524f8f990572f112412, type: 3}
       propertyPath: m_ConstrainProportionsScale
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8391222552659086748, guid: fd1c04f23384a524f8f990572f112412, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -5477749408508380018, guid: fd1c04f23384a524f8f990572f112412, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.9922458
+      objectReference: {fileID: 0}
+    - target: {fileID: -5477749408508380018, guid: fd1c04f23384a524f8f990572f112412, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.11863718
+      objectReference: {fileID: 0}
+    - target: {fileID: -5477749408508380018, guid: fd1c04f23384a524f8f990572f112412, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.013075678
+      objectReference: {fileID: 0}
+    - target: {fileID: -5477749408508380018, guid: fd1c04f23384a524f8f990572f112412, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.03467825
+      objectReference: {fileID: 0}
+    - target: {fileID: -5477749408508380018, guid: fd1c04f23384a524f8f990572f112412, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -13.564
+      objectReference: {fileID: 0}
+    - target: {fileID: -5477749408508380018, guid: fd1c04f23384a524f8f990572f112412, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 2.015
+      objectReference: {fileID: 0}
+    - target: {fileID: -5477749408508380018, guid: fd1c04f23384a524f8f990572f112412, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: -4.243
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: fd1c04f23384a524f8f990572f112412, type: 3}
       propertyPath: m_Name
@@ -7452,7 +7483,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: fd1c04f23384a524f8f990572f112412, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 5866666021909216657, guid: fd1c04f23384a524f8f990572f112412, type: 3}
@@ -8115,7 +8146,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: THE END
+  m_text: "\u041D\u0430 \u0441\u043B\u0435\u0434\u0443\u044E\u0449\u0435\u0435 \u0443\u0442\u0440\u043E
+    \u0432\u0441\u0435 \u0431\u044B\u043B\u043E \u0445\u043E\u0440\u043E\u0448\u043E..."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -8394,7 +8426,7 @@ MonoBehaviour:
   minIntensity: 0
   maxIntensity: 2
   flickerSpeed: 0.1
-  triggerTaskIndex: 10
+  triggerTaskIndex: 12
 --- !u!4 &1418417488
 Transform:
   m_ObjectHideFlags: 0
@@ -8423,7 +8455,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.271
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -8582,7 +8614,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.05
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -9522,7 +9554,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.105
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -9867,7 +9899,7 @@ MonoBehaviour:
   m_RequiresOpaqueTextureOption: 2
   m_CameraType: 0
   m_Cameras: []
-  m_RendererIndex: -1
+  m_RendererIndex: 1
   m_VolumeLayerMask:
     serializedVersion: 2
     m_Bits: 1
@@ -9910,13 +9942,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1671255401}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 6.09, y: 4.97, z: 0}
+  m_LocalRotation: {x: -0.0004685925, y: -0.70710665, z: -0.0004685925, w: 0.70710665}
+  m_LocalPosition: {x: 6.06, y: 4.23, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 901354005}
-  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
+  m_LocalEulerAnglesHint: {x: -0.076, y: -90, z: 0}
 --- !u!1 &1673152293
 GameObject:
   m_ObjectHideFlags: 0
@@ -10008,7 +10040,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.015
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -11321,7 +11353,7 @@ MonoBehaviour:
   closeSound: {fileID: 8300000, guid: 0ffe266ad4d7c344c93cc39f0fd81f23, type: 3}
   closeFootstepSound: {fileID: 8300000, guid: 13abfd6c529e3be44be0064005963379, type: 3}
   heartbeatSound: {fileID: 8300000, guid: bb358936fc453f9469d7edef1ada02e3, type: 3}
-  scrapeSound: {fileID: 8300000, guid: 93b2c216b6be08a4baac0adb90d3f498, type: 3}
+  scrapeSound: {fileID: 8300000, guid: 8032cc83d11819f4187505220ff6ba20, type: 3}
   stopHeartbeatDelay: 2
 --- !u!82 &1905911429
 AudioSource:
@@ -11336,7 +11368,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.105
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -11610,7 +11642,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.05
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -11757,7 +11789,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 0.157
+  m_Volume: 0.088
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -12697,7 +12729,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.05
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -17943,6 +17975,7 @@ GameObject:
   - component: {fileID: 4199507430032001282}
   - component: {fileID: 479075205946695625}
   - component: {fileID: 4873697371562280607}
+  - component: {fileID: 4873697371562280608}
   m_Layer: 0
   m_Name: Cube.109
   m_TagString: Untagged
@@ -26474,7 +26507,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.246
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -29148,8 +29181,8 @@ Transform:
   m_GameObject: {fileID: 6955362466232454605}
   serializedVersion: 2
   m_LocalRotation: {x: 0.00000008429369, y: 0.7071069, z: 0.70710665, w: -0.000000022476474}
-  m_LocalPosition: {x: -98.42021, y: 5.210895, z: 17.79699}
-  m_LocalScale: {x: -360.5112, y: -360.5112, z: -16.951366}
+  m_LocalPosition: {x: -98.42, y: 5.210895, z: 17.84}
+  m_LocalScale: {x: -369.9566, y: -473.83627, z: -16.951366}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7722782351763801603}
@@ -34247,6 +34280,103 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!82 &4873697371562280608
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 952797943984054640}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: ecde81286a3ddde4db67de33e7047f52, type: 3}
+  m_PlayOnAwake: 1
+  m_Volume: 0.03
+  m_Pitch: 1
+  Loop: 1
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1.6857109
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!23 &4877377241621649330
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -45008,7 +45138,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: fbb227f5fc680a94b8e4e56903a48b94, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.224
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -46662,9 +46792,9 @@ MonoBehaviour:
   platesToWash: 3
   platesToWashForEvent: 2
   windowLookTarget: {fileID: 845014459}
-  knockSound: {fileID: 8300000, guid: 93b2c216b6be08a4baac0adb90d3f498, type: 3}
+  knockSound: {fileID: 8300000, guid: d11036a214b299043bd7e4c47c322dad, type: 3}
   audioSource: {fileID: 7689213324682600052}
-  washingSound: {fileID: 8300000, guid: 89fde8e495644734c8d04ae0ef5fd3f1, type: 3}
+  washingSound: {fileID: 8300000, guid: ed60f60fa3b478940aa3a7cb9b8f295e, type: 3}
 --- !u!114 &7689213324682600051
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -46736,7 +46866,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 1
+      value: 0
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -49696,7 +49826,7 @@ MonoBehaviour:
   heatedItemPrefab: {fileID: 8576995911689255936, guid: bf7410acf7fa97b40bdb3a71ddd8cf94, type: 3}
   foodInsidePrefab: {fileID: 8576995911689255936, guid: bf7410acf7fa97b40bdb3a71ddd8cf94, type: 3}
   insidePoint: {fileID: 1673152294}
-  heatTime: 1
+  heatTime: 4
   taskIndexRequired: 3
   handPositionOffset: {x: 0, y: 0, z: 0}
   handRotationOffset: {x: 0, y: 0, z: 0}
@@ -49752,7 +49882,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.169
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -50683,7 +50813,7 @@ MonoBehaviour:
   maxCoverDistance: 11
   coverOpenSensitivity: 1
   peepholeMonster: {fileID: 627137602}
-  timeToWait: 1
+  timeToWait: 5
   monsterVisibleDuration: 1.5
 --- !u!65 &8459281599371142002
 BoxCollider:
